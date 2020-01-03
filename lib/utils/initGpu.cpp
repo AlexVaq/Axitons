@@ -44,7 +44,7 @@ int	initGpu (int accId = 0)
 		return	-1;
 	}
 
-	printf ("Got %d accelerators, selecting accelerator %d", nAccs, accId);
+	printf ("Got %d accelerators, selecting accelerator %d\n", nAccs, accId);
 
 	cudaSetDevice(accId);
 	cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
@@ -52,7 +52,7 @@ int	initGpu (int accId = 0)
 	cudaDeviceProp gpuProp;
 	cudaGetDeviceProperties(&gpuProp, accId);
 
-	printf ("  Peak Memory Bandwidth of Gpu %d (GB/s): %f", accId, 2.0*gpuProp.memoryClockRate*(gpuProp.memoryBusWidth/8)/1.0e6);
+	printf ("  Peak Memory Bandwidth of Gpu %d (GB/s): %f\n", accId, 2.0*gpuProp.memoryClockRate*(gpuProp.memoryBusWidth/8)/1.0e6);
 	gpuMem	      = gpuProp.totalGlobalMem;
 	tPerBlock     = gpuProp.maxThreadsPerBlock;
 	maxThreads[0] = gpuProp.maxThreadsDim[0];
@@ -71,7 +71,7 @@ int	initGpu (int accId = 0)
 		mThreads = omp_get_max_threads();
 	}
 
-	printf ("Cpu will use %d threads for %d processors (max %d)", nThreads, nProcs, mThreads);
+	printf ("Cpu will use %d threads for %d processors (max %d)\n", nThreads, nProcs, mThreads);
 
 	return	0;
 }

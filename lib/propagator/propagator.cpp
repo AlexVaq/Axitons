@@ -142,7 +142,7 @@ void	initPropagator	(PropagatorType pType, Cosmos *bck, Axiton *field) {
 	}
 
 	//printf	("Propagator %ssuccessfully initialized", prop->Name().c_str());
-	printf	("Propagator successfully initialized");
+	printf	("Propagator successfully initialized\n");
 }
 
 void	propagate	(const double dz)

@@ -37,27 +37,25 @@
 
 void	Axiton::transferField(FieldIndex fIdx, MemDirection mIdx)
 {
-	switch (fIdx) {
-		case FieldBase:
+	if (fIdx & FieldBase) {
 		if	(mIdx == DeviceToHost) 
 			cudaMemcpy(hField, dField,  bytes, cudaMemcpyDeviceToHost);
 		else if (mIdx == HostToDevice)
 			cudaMemcpy(dField, hField,  bytes, cudaMemcpyHostToDevice);
-		break;
+	}
 
-		case FieldDev:
+	if (fIdx & FieldDev) {
 		if	(mIdx == DeviceToHost) 
 			cudaMemcpy(hDev,   dDev,    bytes, cudaMemcpyDeviceToHost);
 		else if (mIdx == HostToDevice)
 			cudaMemcpy(dDev,   hDev,    bytes, cudaMemcpyHostToDevice);
-		break;
+	}
 
-		case FieldMisc:
+	if (fIdx & FieldMisc) {
 		if	(mIdx == DeviceToHost) 
 			cudaMemcpy(hMisc,  dMisc,   bytes, cudaMemcpyDeviceToHost);
 		else if (mIdx == HostToDevice)
 			cudaMemcpy(dMisc,  hMisc,   bytes, cudaMemcpyHostToDevice);
-		break;
 	}
 }
 

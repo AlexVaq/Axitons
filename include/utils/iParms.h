@@ -1,6 +1,7 @@
 #ifndef	InitialParametersGuard
 	#define	InitialParametersGuard
 
+	#include <string>
 	#include"enum-vars.h"
 
 	struct	iParms
@@ -30,5 +31,9 @@
 		int		dump;
 		int		fIndex;
 		double		wTime;
+
+		std::string	outputName;
+		std::string	outputDir;
+		std::string	wisdomDir;
 	};
 #endif

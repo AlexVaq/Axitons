@@ -16,14 +16,15 @@ void	trackFree (void *ptr)
 {
 	AllocType aType = allocTable[ptr].first;
 	size_t    bytes = allocTable[ptr].second;
-	free (ptr);
 
 	switch (aType) {
 		case TrackHostAlloc:
+		free (ptr);
 		trackAllocMem  -= bytes;
 		break;
 
 		case TrackDeviceAlloc:
+		cudaFree (ptr);
 		trackDeviceMem -= bytes;
 		break;
 

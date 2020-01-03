@@ -1,8 +1,8 @@
 #ifndef	ParserGuard
 	#define	ParserGuard
 
-	#include "enum-vars.h"
 	#include "cosmos/cosmos.h"
 
-	Cosmos	parseArgs (int argc, char *argv[]);
+	Cosmos	initAxitons(int argc, char *argv[]);
+	void	endAxitons ();
 #endif

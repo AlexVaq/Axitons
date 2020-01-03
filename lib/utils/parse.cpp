@@ -14,7 +14,7 @@
 #include "cosmos/cosmos.h"
 
 char outName[128] = "axiton\0";
-char outDir[1024] = "out/m\0";
+char outDir[1024] = "out/m/\0";
 char wisDir[1024] = "./\0";
 
 bool mCreateOut = false;
@@ -702,8 +702,12 @@ Cosmos	initAxitons(int argc, char *argv[]) {
 
 	createOutput();
 
-	printf ("Output folder set to %s", outDir);
-	printf ("FFTW wisdom folder set to %s", wisDir);
+	printf ("Output folder set to %s\n", outDir);
+	printf ("FFTW wisdom folder set to %s\n", wisDir);
+
+	myParms.outputDir  = outDir;
+	myParms.outputName = outName;
+	myParms.wisdomDir  = wisDir;
 
 	return	Cosmos(myParms);
 }

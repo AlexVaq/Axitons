@@ -1,6 +1,8 @@
 #ifndef	enumVarsGuard
 	#define	enumVarsGuard
 
+	#include <hdf5.h>
+
 	typedef	unsigned int uint;
 
 	namespace AxitonEnum {
@@ -20,9 +22,13 @@
 		}	MemDirection;
 
 		typedef	enum	FieldIndex_s {
-			FieldBase,
-			FieldDev,
-			FieldMisc,
+			FieldBase	= 1,
+			FieldDev	= 2,
+			FieldMisc	= 4,
+			FieldBaseDev	= 3,
+			FieldBaseMisc	= 5,
+			FieldDevMisc	= 6,
+			FieldAll	= 7,
 		}	FieldIndex;
 
 		typedef	enum	FieldExpansion_s {
@@ -49,6 +55,25 @@
 			PropagatorOmelyan4,
 			PropagatorRKN4,
 		}	PropagatorType;
+
+#ifdef	__NVCC__
+	#define	Attr	inline constexpr __host__ __device__
+#else
+	#define	Attr	inline constexpr
+#endif
+		template<typename enumFlag>
+		Attr enumFlag  operator &  (enumFlag  lhs, const enumFlag rhs) { return static_cast<enumFlag>(static_cast<int>(lhs) & static_cast<int>(rhs)); }
+		template<typename enumFlag>
+		Attr enumFlag& operator &= (enumFlag &lhs, const enumFlag rhs) { lhs  = static_cast<enumFlag>(static_cast<int>(lhs) & static_cast<int>(rhs)); return lhs; }
+		template<typename enumFlag>
+		Attr enumFlag  operator |  (enumFlag  lhs, const enumFlag rhs) { return static_cast<enumFlag>(static_cast<int>(lhs) | static_cast<int>(rhs)); }
+		template<typename enumFlag>
+		Attr enumFlag& operator |= (enumFlag &lhs, const enumFlag rhs) { lhs  = static_cast<enumFlag>(static_cast<int>(lhs) | static_cast<int>(rhs)); return lhs; }
+		template<typename enumFlag>
+		Attr enumFlag  operator ^  (enumFlag  lhs, const enumFlag rhs) { return static_cast<enumFlag>(static_cast<int>(lhs) ^ static_cast<int>(rhs)); }
+		template<typename enumFlag>
+		Attr enumFlag& operator ^= (enumFlag &lhs, const enumFlag rhs) { lhs  = static_cast<enumFlag>(static_cast<int>(lhs) ^ static_cast<int>(rhs)); return lhs; }
+#undef	Attr
 	}
 
 	using namespace AxitonEnum;
