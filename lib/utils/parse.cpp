@@ -107,7 +107,7 @@ iParms	parseArgs (int argc, char *argv[])
 
 	defaultParms.cType    = IcFlat;
 	defaultParms.parm1    = 1.0;
-	defaultParms.parm2    = 0;
+	defaultParms.parm2    = 64;
 
 	defaultParms.lSize    = 4.0;
 	defaultParms.indi3    = 1.0;

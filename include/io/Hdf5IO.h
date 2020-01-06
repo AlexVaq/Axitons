@@ -31,7 +31,7 @@
 		herr_t	writeData	(std::string dataPath, hid_t h5Type, void *data, size_t aSize);
 		herr_t	writeData	(std::string dataPath, hid_t h5Type, void *data, size_t aSize, hid_t gid);
 
-		herr_t	nextFile	(int jump);
+		herr_t	nextFile	(int jump = 0);
 		hid_t	currentFile	() { return file_id; }
 		hid_t	currentIndex	() { return fIndex;  }
 	};

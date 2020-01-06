@@ -97,11 +97,11 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
 	H5Fclose(file_id);
 }
 
-herr_t	Hdf5ReadWriter::nextFile	(int jump=0) {
+herr_t	Hdf5ReadWriter::nextFile	(int jump) {
 
 	H5Fclose(file_id);
 
-	fIndex++;
+	fIndex += jump + 1;
 
 	char cIndex[8];
 

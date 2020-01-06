@@ -26,6 +26,9 @@ int	main (int argc, char *argv[])
 
 	AxitonFactory.Construct(myParms.parm1, myParms.parm2, myParms.zInit);
 
+	IOHandler.writeConf(&myCosmos, axiton);
+	IOHandler.nextFile ();
+
 	printf ("Transferring configuration to device\n"); fflush(stdout);
 	axiton->transferField(FieldBase | FieldDev, HostToDevice);
 	CudaCheckError();
