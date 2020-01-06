@@ -8,7 +8,7 @@
 #include "cudaErrors.h"
 
 
-	Axiton::Axiton (int len, FieldPrecision pr) : length(len), prec(pr), bytes(len * pr) {
+	Axiton::Axiton (int len, FieldPrecision pr, FieldType fType) : length(len), prec(pr), bytes(len * pr), fMod(fType) {
 
 	printf("Constructing fields...\n"); fflush(stdout);
 
@@ -19,6 +19,10 @@
 	deviceAlloc(&dField, bytes);
 	deviceAlloc(&dDev,   bytes);
 	deviceAlloc(&dMisc,  bytes);
+
+	fStatus = FieldUndefined;
+	dStatus = FieldUndefined;
+	zVar	= 0.0;
 
 	printf("Field constructed\n"); fflush(stdout);
 }
@@ -38,24 +42,31 @@
 void	Axiton::transferField(FieldIndex fIdx, MemDirection mIdx)
 {
 	if (fIdx & FieldBase) {
-		if	(mIdx == DeviceToHost) 
+		if	  ((mIdx == DeviceToHost) && (fStatus & FieldGpu)) { 
 			cudaMemcpy(hField, dField,  bytes, cudaMemcpyDeviceToHost);
-		else if (mIdx == HostToDevice)
+			fStatus |= FieldCpu;
+		} else if ((mIdx == HostToDevice) && (fStatus & FieldCpu)) {
 			cudaMemcpy(dField, hField,  bytes, cudaMemcpyHostToDevice);
+			fStatus |= FieldGpu;
+		}
 	}
 
 	if (fIdx & FieldDev) {
-		if	(mIdx == DeviceToHost) 
+		if	  ((mIdx == DeviceToHost) && (dStatus & FieldGpu)) {
 			cudaMemcpy(hDev,   dDev,    bytes, cudaMemcpyDeviceToHost);
-		else if (mIdx == HostToDevice)
+			dStatus |= FieldCpu;
+		} else if ((mIdx == HostToDevice) && (dStatus & FieldCpu)) {
 			cudaMemcpy(dDev,   hDev,    bytes, cudaMemcpyHostToDevice);
+			dStatus |= FieldGpu;
+		}
 	}
 
 	if (fIdx & FieldMisc) {
-		if	(mIdx == DeviceToHost) 
+		if	  (mIdx == DeviceToHost) {
 			cudaMemcpy(hMisc,  dMisc,   bytes, cudaMemcpyDeviceToHost);
-		else if (mIdx == HostToDevice)
+		} else if (mIdx == HostToDevice) {
 			cudaMemcpy(dMisc,  hMisc,   bytes, cudaMemcpyHostToDevice);
+		}
 	}
 }
 

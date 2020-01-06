@@ -15,8 +15,8 @@
 		double		wDz;
 
 		InitialCond	cType;
-		int		parm1;
-		double		parm2;
+		double		parm1;
+		int		parm2;
 
 		FieldExpansion	fExp;
 		double		lSize;

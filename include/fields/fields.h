@@ -22,33 +22,38 @@
 			double		zVar;
 
 			FieldType	fMod;
+			FieldStatus	fStatus;
+			FieldStatus	dStatus;
 
 		public:
 
-					 Axiton      (int len, FieldPrecision pr);
+					 Axiton      (int len, FieldPrecision pr, FieldType fType = FieldNonCompact);
 					~Axiton      ();
 
-			void		*fieldCpu    ()         { return hField; }
-			const void	*fieldCpu    () const   { return hField; }
-			void		*fieldGpu    ()         { return dField; }
-			const void	*fieldGpu    () const   { return dField; }
-			void		*devCpu      ()         { return hDev;   }
-			const void	*devCpu      () const   { return hDev;   }
-			void		*devGpu      ()         { return dDev;   }
-			const void	*devGpu      () const   { return dDev;   }
-			void		*miscCpu     ()         { return hMisc;  }
-			const void	*miscCpu     () const   { return hMisc;  }
-			void		*miscGpu     ()         { return dMisc;  }
-			const void	*miscGpu     () const   { return dMisc;  }
+			void		*fieldCpu    ()         { return hField;  }
+			const void	*fieldCpu    () const   { return hField;  }
+			void		*fieldGpu    ()         { return dField;  }
+			const void	*fieldGpu    () const   { return dField;  }
+			void		*devCpu      ()         { return hDev;    }
+			const void	*devCpu      () const   { return hDev;    }
+			void		*devGpu      ()         { return dDev;    }
+			const void	*devGpu      () const   { return dDev;    }
+			void		*miscCpu     ()         { return hMisc;   }
+			const void	*miscCpu     () const   { return hMisc;   }
+			void		*miscGpu     ()         { return dMisc;   }
+			const void	*miscGpu     () const   { return dMisc;   }
 
-			int		Size         ()         { return length; }
-			int		Data         ()         { return bytes;  }
-			FieldPrecision	Precision    ()         { return prec;   }
-			FieldType	Field        () const   { return fMod;   }
+			FieldStatus	fieldStatus  () const	{ return fStatus; }
+			FieldStatus	devStatus    () const	{ return dStatus; }
 
-			double		z	     ()         { return zVar;   }
-			const double	z	     () const   { return zVar;   }
-			void		zUpdate	     (double z) { zVar += z;     }
+			int		Size         ()         { return length;  }
+			int		Data         ()         { return bytes;   }
+			FieldPrecision	Precision    ()         { return prec;    }
+			FieldType	Field        () const   { return fMod;    }
+
+			double		z	     ()         { return zVar;    }
+			const double	z	     () const   { return zVar;    }
+			void		zUpdate	     (double z) { zVar += z;      }
 
 			template<FieldExpansion fExp>
 			double		R	     ()         { switch(fExp) { case Minkowski: { return 1.0; break; } case Radiation: { return zVar; break; } } }
@@ -56,5 +61,6 @@
 			const double	R	     () const   { switch(fExp) { case Minkowski: { return 1.0; break; } case Radiation: { return zVar; break; } } }
 
 			void		transferField(FieldIndex fIdx, MemDirection mIdx);
+			void		setStatus    (FieldIndex fIdx, FieldStatus nStatus) { if (fIdx & FieldBase) { fStatus = nStatus; } if (fIdx & FieldDev) { dStatus = nStatus; } };
 	};
 #endif

@@ -15,6 +15,6 @@
 
 			Generator (InitialCond icType, Axiton *field) : icType(icType), field(field) {}
 
-		void	Construct (double parm1, int parm2);
+		void	Construct (double parm1, int parm2, double zInit);
 	};
 #endif

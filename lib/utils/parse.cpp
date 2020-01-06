@@ -98,7 +98,7 @@ iParms	parseArgs (int argc, char *argv[])
 	iParms	defaultParms;
 
 	// Defaults
-	defaultParms.nSize    = 2048;
+	defaultParms.nSize    = 16384;
 	defaultParms.fPrec    = SinglePrecision;
 	defaultParms.pType    = PropagatorRKN4;
 	defaultParms.fExp     = Radiation;
@@ -106,8 +106,8 @@ iParms	parseArgs (int argc, char *argv[])
 	defaultParms.wDz      = 0.8;
 
 	defaultParms.cType    = IcFlat;
-	defaultParms.parm1    = 0.143;
-	defaultParms.parm2    = 40;
+	defaultParms.parm1    = 1.0;
+	defaultParms.parm2    = 0;
 
 	defaultParms.lSize    = 4.0;
 	defaultParms.indi3    = 1.0;
@@ -196,7 +196,7 @@ iParms	parseArgs (int argc, char *argv[])
 				exit(1);
 			}
 
-			defaultParms.parm2 = kCrit;
+			defaultParms.parm1 = kCrit;
 
 			i++;
 			procArgs++;
@@ -220,7 +220,7 @@ iParms	parseArgs (int argc, char *argv[])
 				exit(1);
 			}
 
-			defaultParms.parm2 = alpha;
+			defaultParms.parm1 = alpha;
 
 			i++;
 			procArgs++;
@@ -476,7 +476,7 @@ iParms	parseArgs (int argc, char *argv[])
 				exit(1);
 			}
 
-			defaultParms.parm1 = kMax;
+			defaultParms.parm2 = kMax;
 
 			i++;
 			procArgs++;
@@ -500,7 +500,7 @@ iParms	parseArgs (int argc, char *argv[])
 				exit(1);
 			}
 
-			defaultParms.parm1 = iter;
+			defaultParms.parm2 = iter;
 
 			i++;
 			procArgs++;
@@ -662,7 +662,7 @@ iParms	parseArgs (int argc, char *argv[])
 
 	/*	Set the output directory, according to an environmental variable	*/
 
-	if (const char *outPath = std::getenv("AXIONS_OUTPUT")) {
+	if (const char *outPath = std::getenv("AXITONS_OUTPUT")) {
 		if (strlen(outPath) < 1022) {
 			struct stat tStat;
 			if (stat(outPath, &tStat) == 0 && S_ISDIR(tStat.st_mode)) {
@@ -678,7 +678,7 @@ iParms	parseArgs (int argc, char *argv[])
 
 	/*	Set the directory where the FFTW wisdom is/will be stored		*/
 
-	if (const char *wisPath = std::getenv("AXIONS_WISDOM")) {
+	if (const char *wisPath = std::getenv("AXITONS_WISDOM")) {
 		if (strlen(wisPath) < 1022) {
 			struct stat tStat;
 			if (stat(wisPath, &tStat) == 0 && S_ISDIR(tStat.st_mode)) {

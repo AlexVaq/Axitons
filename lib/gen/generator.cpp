@@ -53,7 +53,7 @@ void	fillSinc2(Axiton *field, double value, int coef) {
 	}
 }
 
-void	Generator::Construct (double parm1, int parm2) {
+void	Generator::Construct (double parm1, int parm2, double zInit) {
 
 	switch (icType) {
 
@@ -69,4 +69,8 @@ void	Generator::Construct (double parm1, int parm2) {
 		default:
 		break;
 	}
+
+	field->setStatus    (FieldBaseDev, FieldCpu);
+	field->transferField(FieldBaseDev, HostToDevice);
+	field->zUpdate	    (zInit);
 }

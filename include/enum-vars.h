@@ -56,6 +56,13 @@
 			PropagatorRKN4,
 		}	PropagatorType;
 
+		typedef	enum	FieldStatus_s {
+			FieldUndefined	= 0,
+			FieldGpu	= 1,
+			FieldCpu	= 2,
+			FieldCoherent	= 3,
+		}	FieldStatus;
+
 #ifdef	__NVCC__
 	#define	Attr	inline constexpr __host__ __device__
 #else

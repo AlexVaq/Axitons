@@ -1,4 +1,5 @@
 #include "enum-vars.h"
+#include "cudaErrors.h"
 
 #define	TwoPi	(2.*M_PI)
 
@@ -22,14 +23,16 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 {
 	Float mel, pFc, a, tmp;
 
-	// DO STUFF
-	tmp = field[idx];
+	if (idx != 0) { // FIXME SLOW AS HELL
+		tmp = field[idx];
 
-	//if (wMod) {
-	//	dev = modPi(mPr - tmp, zP, tPz);
-	//} else
-		pFc = 1 + ((Float) (2*idx+1))/(idx*idx);
-		mel = pFc*field[idx+2] - (1 + pFc)*field[idx+1] + tmp;
+		//if (wMod) {
+		//	dev = modPi(mPr - tmp, zP, tPz);
+		//} else
+			pFc = 1 + ((Float) (2*idx+1))/(idx*idx);
+			mel = pFc*field[idx+2] - (1 + pFc)*field[idx+1] + tmp;
+	} else
+		mel = 0.;
 
 	a = mel*ood2 - zQ*sin(tmp*iz);
 
@@ -121,6 +124,8 @@ void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __
 			propGpu	  (field, dev, misc, z, dz, c, d, ood2, aMass2, Lx, precision, xBlock, yBlock, zBlock);
 			break;
 	}
+
+	CudaCheckError();
 
 	return;
 }

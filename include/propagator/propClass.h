@@ -10,11 +10,10 @@
 	#include "cosmos/cosmos.h"
 	#include "utils/utils.h"
 
-
-
 	#include <cuda.h>
 	#include <cuda_runtime.h>
 	#include <cuda_device_runtime_api.h>
+	#include "cudaErrors.h"
 	#include "propagator/propKernel.h"
 
 	#ifdef	__GNUG__
@@ -117,6 +116,8 @@
 			propCore<Radiation> (dz);
 			break;
 		}
+
+		field->setStatus (FieldBaseDev, FieldGpu);
 	}
 
 	template<const int nStages, const bool lastStage>
