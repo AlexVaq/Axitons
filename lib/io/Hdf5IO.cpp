@@ -29,7 +29,7 @@ hid_t	createGroup	(std::string gName, hid_t base_id) {
 		if (status > 0)
 			group_id = H5Gopen2(base_id, gName.c_str(), H5P_DEFAULT);
 		else {
-			printf ("Error: can't check whether group %s exists", gName.c_str());
+			printf ("Error: can't check whether group %s exists\n", gName.c_str());
 			return	-1;
 		}
 	}
@@ -73,7 +73,7 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
 	H5Gclose (gid);
 }
 
-	Hdf5ReadWriter::Hdf5ReadWriter (iParms myParms) : outputDir(myParms.outputDir), outputName(myParms.outputName), fIndex(fIndex) {
+	Hdf5ReadWriter::Hdf5ReadWriter (iParms myParms) : outputDir(myParms.outputDir), outputName(myParms.outputName), fIndex(myParms.fIndex) {
 
 	char cIndex[8];
 
@@ -87,7 +87,7 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
         /*      Create the file and release the plist   */
 	if ((file_id = H5Fcreate (fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)) < 0)
 	{
-		printf ("Error opening file %s", fileName.c_str());
+		printf ("Error opening file %s\n", fileName.c_str());
 		return;
 	}
 }
@@ -110,7 +110,7 @@ herr_t	Hdf5ReadWriter::nextFile	(int jump) {
 
 	if ((file_id = H5Fcreate (fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)) < 0)
 	{
-		printf ("Error opening file %s", fileName.c_str());
+		printf ("Error opening file %s\n", fileName.c_str());
 		return	-1;
 	}
 
@@ -123,9 +123,9 @@ herr_t  Hdf5ReadWriter::readAttribute	(std::string attName, hid_t h5Type, void *
         herr_t  status;
 
         if ((attr   = H5Aopen_by_name (cid, ".", attName.c_str(), H5P_DEFAULT, H5P_DEFAULT)) < 0)
-                printf ("Error opening attribute %s", attName.c_str());
+                printf ("Error opening attribute %s\n", attName.c_str());
         if ((status = H5Aread (attr, h5Type, data)) < 0)
-                printf ("Error reading attribute %s", attName.c_str());
+                printf ("Error reading attribute %s\n", attName.c_str());
         status = H5Aclose(attr);
 
         return  status;
@@ -142,9 +142,9 @@ herr_t  Hdf5ReadWriter::writeAttribute	(std::string attName, hid_t h5Type, void 
 
         attr_id = H5Screate(H5S_SCALAR);
         if ((attr   = H5Acreate2 (cid, attName.c_str(), h5Type, attr_id, H5P_DEFAULT, H5P_DEFAULT)) < 0)
-                printf ("Error creating attribute %s", attName.c_str());
+                printf ("Error creating attribute %s\n", attName.c_str());
         if ((status = H5Awrite (attr, h5Type, data)) < 0)
-                printf ("Error writing attribute %s to file", attName.c_str());
+                printf ("Error writing attribute %s to file\n", attName.c_str());
         H5Sclose(attr_id);
         status = H5Aclose(attr);
 
@@ -169,7 +169,7 @@ herr_t	Hdf5ReadWriter::writeData (std::string dataName, hid_t h5Type, void *aDat
 
 	/*      Write spectrum data     */
 	if (H5Dwrite(dataSet, h5Type, dataSpace, sSpace, H5P_DEFAULT, aData) < 0) {
-		printf ("Error writing %zu elements to dataset", aSize);
+		printf ("Error writing %zu elements to dataset\n", aSize);
 		return	-1;
 	}
 

@@ -45,8 +45,6 @@ int	main (int argc, char *argv[])
 	std::chrono::milliseconds elapsed;
 
 	int counter = 0;
-	int index = 0;
-
 	auto dump = myParms.dump;
 
 	if (dump > myParms.nSteps)
@@ -69,24 +67,21 @@ int	main (int argc, char *argv[])
 
 	for (int zloop = 0; zloop < nLoops; zloop++)
 	{
-		index++;
-
 		for (int zsubloop = 0; zsubloop < dump; zsubloop++) {
 			propagate (dz);
 		}
+
+		axiton->transferField(FieldBase | FieldDev, DeviceToHost);
+		IOHandler.nextFile();
+		IOHandler.writeConf(&myCosmos, axiton);
 	}
 
 	current = std::chrono::high_resolution_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current - start);
 
-	printf ("Transferring configuration to host\n"); fflush(stdout);
-	axiton->transferField(FieldBase | FieldDev, DeviceToHost);
-
-	IOHandler.writeConf(&myCosmos, axiton);
-
 	printf ("Final z  = %f\n", axiton->z());
 	printf ("#_steps  = %i\n", nLoops*dump);
-	printf ("#_prints = %i\n", index);
+	printf ("#_prints = %i\n", IOHandler.currentIndex());
 	printf ("Total time: %2.3f s\n", elapsed.count()*1.e-3);
 
 	delete axiton;

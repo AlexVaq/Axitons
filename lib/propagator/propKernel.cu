@@ -21,18 +21,16 @@ template<typename Float, const bool wMod>
 static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Float * __restrict__ field, Float * __restrict__ dev, Float * __restrict__ misc, const Float zQ,
 							 const Float iz, const Float dzc, const Float dzd, const Float ood2, const int Lx, const Float zP, const Float tPz)
 {
-	Float mel, pFc, a, tmp;
+	Float mel, pPc, a, tmp;
+	int   cIdx = idx + 1;
+
+	tmp = field[idx];
 
 	if (idx != 0) { // FIXME SLOW AS HELL
-		tmp = field[idx];
-
-		//if (wMod) {
-		//	dev = modPi(mPr - tmp, zP, tPz);
-		//} else
-			pFc = 1 + ((Float) (2*idx+1))/(idx*idx);
-			mel = pFc*field[idx+2] - (1 + pFc)*field[idx+1] + tmp;
+		pPc = 1.0/cIdx;
+		mel = field[idx+1]*(1.0 + pPc) + field[idx-1]*(1.0 - pPc) - tmp*2.0;
 	} else
-		mel = 0.;
+		mel = (field[idx+1] - tmp)*2.0;
 
 	a = mel*ood2 - zQ*sin(tmp*iz);
 

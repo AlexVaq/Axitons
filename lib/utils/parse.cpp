@@ -115,7 +115,7 @@ iParms	parseArgs (int argc, char *argv[])
 	defaultParms.zThRes   = 0.5;
 	defaultParms.zRestore = 5.0;
 	defaultParms.zInit    = 0.5;
-	defaultParms.zEnd     = 5.0;
+	defaultParms.zEnd     = 0.6;
 
 	defaultParms.nSteps   = 1000;
 	defaultParms.dump     = 100;
