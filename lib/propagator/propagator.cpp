@@ -13,8 +13,8 @@ std::unique_ptr<PropBase> prop;
 class	PropLeap : public PropClass<2, true> {
 
 	public:
-		PropLeap(Cosmos *bck, Axiton *field) :
-		PropClass<2, true>(bck, field) {
+		PropLeap(Cosmos *bck, Axiton *field, const int nNeig) :
+		PropClass<2, true>(bck, field, nNeig) {
 		//	Set up Leapfrog parameters
 
 		double nC[3] = { 0.5, 0.5, 0.0 };
@@ -27,8 +27,8 @@ class	PropLeap : public PropClass<2, true> {
 class	PropMLeap : public PropClass<4, true> {
 
 	public:
-		PropMLeap(Cosmos *bck, Axiton *field) :
-		PropClass<4, true>(bck, field) {
+		PropMLeap(Cosmos *bck, Axiton *field, const int nNeig) :
+		PropClass<4, true>(bck, field, nNeig) {
 
 		//	Set up Leapfrog parameters
 
@@ -42,8 +42,8 @@ class	PropMLeap : public PropClass<4, true> {
 class	PropOmelyan2 : public PropClass<2, true> {
 
 	public:
-		PropOmelyan2(Cosmos *bck, Axiton *field) :
-		PropClass<2, true>(bck, field) {
+		PropOmelyan2(Cosmos *bck, Axiton *field, const int nNeig) :
+		PropClass<2, true>(bck, field, nNeig) {
 		constexpr double chi = +0.19318332750378360;
 
 		//	Set up Omelyan parameters for BABAB
@@ -58,8 +58,8 @@ class	PropOmelyan2 : public PropClass<2, true> {
 class	PropOmelyan4 : public PropClass<4, true> {
 
 	public:
-		PropOmelyan4(Cosmos *bck, Axiton *field) :
-		PropClass<4, true>(bck, field) {
+		PropOmelyan4(Cosmos *bck, Axiton *field, const int nNeig) :
+		PropClass<4, true>(bck, field, nNeig) {
 		constexpr double xi  = +0.16449865155757600;
 		constexpr double lb  = -0.02094333910398989;
 		constexpr double chi = +1.23569265113891700;
@@ -76,8 +76,8 @@ class	PropOmelyan4 : public PropClass<4, true> {
 class	PropRKN4 : public PropClass<4, false> {
 
 	public:
-		PropRKN4(Cosmos *bck, Axiton *field) :
-		PropClass<4, false>(bck, field) {
+		PropRKN4(Cosmos *bck, Axiton *field, const int nNeig) :
+		PropClass<4, false>(bck, field, nNeig) {
 		//	Set up RKN parameters for BABABABA
 
 		const double nC[4] = { +0.1344961992774310892, -0.2248198030794208058, +0.7563200005156682911, +0.3340036032863214255 };
@@ -88,7 +88,7 @@ class	PropRKN4 : public PropClass<4, false> {
 };
 
 
-void	initPropagator	(PropagatorType pType, Cosmos *bck, Axiton *field) {
+void	initPropagator	(PropagatorType pType, Cosmos *bck, Axiton *field, int nNeig) {
 
 	bool wasTuned = false;
 
@@ -105,31 +105,31 @@ void	initPropagator	(PropagatorType pType, Cosmos *bck, Axiton *field) {
 	switch (pType) {
 		case PropagatorOmelyan2:
 		{
-			prop = std::make_unique<PropOmelyan2>	(bck, field);
+			prop = std::make_unique<PropOmelyan2>	(bck, field, nNeig);
 			break;
 		}
 
 		case PropagatorOmelyan4:
 		{
-			prop = std::make_unique<PropOmelyan4>	(bck, field);
+			prop = std::make_unique<PropOmelyan4>	(bck, field, nNeig);
 			break;
 		}
 
 		case PropagatorLeapFrog2:
 		{
-			prop = std::make_unique<PropLeap>	(bck, field);
+			prop = std::make_unique<PropLeap>	(bck, field, nNeig);
 			break;
 		}
 
 		case PropagatorLeapFrog4:
 		{
-			prop = std::make_unique<PropMLeap>	(bck, field);
+			prop = std::make_unique<PropMLeap>	(bck, field, nNeig);
 			break;
 		}
 
 		case PropagatorRKN4:
 		{
-			prop = std::make_unique<PropRKN4>	(bck, field);
+			prop = std::make_unique<PropRKN4>	(bck, field, nNeig);
 			break;
 		}
 	}

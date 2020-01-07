@@ -99,8 +99,6 @@ iParms	parseArgs (int argc, char *argv[])
 
 	// Defaults
 	defaultParms.nSize    = 16384;
-	defaultParms.fPrec    = SinglePrecision;
-	defaultParms.pType    = PropagatorRKN4;
 	defaultParms.fExp     = Radiation;
 	defaultParms.fMod     = FieldNonCompact;
 	defaultParms.wDz      = 0.8;
@@ -117,6 +115,9 @@ iParms	parseArgs (int argc, char *argv[])
 	defaultParms.zInit    = 0.5;
 	defaultParms.zEnd     = 0.6;
 
+	defaultParms.pType    = PropagatorRKN4;
+	defaultParms.fPrec    = SinglePrecision;
+	defaultParms.nNeig    = 1;
 	defaultParms.nSteps   = 1000;
 	defaultParms.dump     = 100;
 	defaultParms.fIndex   = -1;
@@ -526,6 +527,30 @@ iParms	parseArgs (int argc, char *argv[])
 
 			defaultParms.fIndex = fIndex;
 			defaultParms.cType  = IcRead;
+
+			i++;
+			procArgs++;
+			passed = true;
+			goto endFor;
+		}
+
+		if (!strcmp(argv[i], "--nn"))
+		{
+			if (i+1 == argc)
+			{
+				printf("Error: I need a number of neighbours.\n");
+				exit(1);
+			}
+
+			int nNeig = atoi(argv[i+1]);
+
+			if (nNeig < 1 || nNeig > 4)
+			{
+				printf("Error: The number of neighbours must be comprised between 1 and 4.\n");
+				exit(1);
+			}
+
+			defaultParms.nNeig = nNeig;
 
 			i++;
 			procArgs++;

@@ -63,7 +63,7 @@ int	main (int argc, char *argv[])
 	old = start;
 
 	printf ("Initial z = %f\n",  axiton->z());
-	initPropagator (myParms.pType, &myCosmos, axiton);
+	initPropagator (myParms.pType, &myCosmos, axiton, myParms.nNeig);
 
 	for (int zloop = 0; zloop < nLoops; zloop++)
 	{

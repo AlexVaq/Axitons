@@ -27,6 +27,7 @@
 		double		zInit;
 		double		zEnd;
 
+		int		nNeig;
 		int		nSteps;
 		int		dump;
 		int		fIndex;

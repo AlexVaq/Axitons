@@ -33,12 +33,14 @@
 		double	c[nStages + (lastStage == true ? 1 : 0)];
 		double	d[nStages];
 
+		const int	nNeig;
+
 		template<FieldExpansion fExp>
 		inline void	propCore	(const double);
 
 		public:
 
-		inline		 PropClass	(Cosmos *background, Axiton *field);
+		inline		 PropClass	(Cosmos *background, Axiton *field, int nNeig);
 		inline		~PropClass	() override {};
 
 		inline void	setCoeff	(const double * __restrict__ nC, const double * __restrict__ nD) {
@@ -53,8 +55,8 @@
 	};
 
 	template<const int nStages, const bool lastStage>
-		PropClass<nStages, lastStage>::PropClass(Cosmos *background, Axiton *field) : background(background), field(field), Lx(background->CosmosLatt()),
-											      ood2(1./(background->Delta()*background->Delta())) {
+		PropClass<nStages, lastStage>::PropClass(Cosmos *background, Axiton *field, int nNeig) : background(background), field(field), nNeig(nNeig), Lx(background->CosmosLatt()),
+													   ood2(1./(background->Delta()*background->Delta())) {
 
 		/*	Default block size gives just one block	*/
 
@@ -76,18 +78,18 @@
 			auto R   = field->R<fExp>();
 			auto maa = background->AxionMassSq(R);
 
-			propGpu(field->fieldGpu(), field->devGpu(), field->miscGpu(), R, dz, c1, d1, ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
-			propGpu(field->fieldGpu(), field->devGpu(), field->miscGpu(), R, dz, c1, d1, ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
-			propGpu(field->fieldGpu(), field->devGpu(), field->miscGpu(), R, dz, c1, d1, ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
+			propGpu(field->fieldGpu(), field->devGpu(), field->miscGpu(), R, dz, c1, d1, ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
+			propGpu(field->fieldGpu(), field->devGpu(), field->miscGpu(), R, dz, c1, d1, ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
+			propGpu(field->fieldGpu(), field->devGpu(), field->miscGpu(), R, dz, c1, d1, ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
 			cudaDeviceSynchronize();        // This is not strictly necessary, but simplifies things a lot
 
 			field->zUpdate(dz*d1);
 			R   = field->R<fExp>();
 			maa = background->AxionMassSq(R);
 
-			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c2, d2, ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
-			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c2, d2, ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
-			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c2, d2, ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
+			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c2, d2, ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
+			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c2, d2, ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
+			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c2, d2, ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
 			cudaDeviceSynchronize();        // This is not strictly necessary, but simplifies things a lot
 			field->zUpdate(dz*d2);
 		}
@@ -97,9 +99,9 @@
 			auto         R   = field->R<fExp>();
 			auto         maa = background->AxionMassSq(R);
 			// THIS IS WRONG!!! From Misc to Field, and should be from Field to Field
-			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c0, 0., ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
-			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c0, 0., ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
-			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c0, 0., ood2, maa, Lx, field->Precision(), xBlock, yBlock, zBlock, wMod);
+			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c0, 0., ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
+			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c0, 0., ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
+			propGpu(field->miscGpu(), field->devGpu(), field->fieldGpu(), R, dz, c0, 0., ood2, maa, Lx, field->Precision(), nNeig, xBlock, yBlock, zBlock, wMod);
 			cudaDeviceSynchronize();        // This is not strictly necessary, but simplifies things a lot
 		}
 	}
