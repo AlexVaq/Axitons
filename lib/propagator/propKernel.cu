@@ -103,7 +103,7 @@ __global__ void	propagateKernel(const Float * __restrict__ field, Float * __rest
 	uint idx = threadIdx.x + blockDim.x*(blockIdx.x + gridDim.x*blockIdx.y);
 	//uint idx = Vo + (threadIdx.x + blockDim.x*blockIdx.x) + Sf*(threadIdx.y + blockDim.y*blockIdx.y);
 
-	if	(idx >= Lx)
+	if	(idx >= Lx - nNeig)
 		return;
 
 	propagateCoreGpu<Float,nNeig,wMod>(idx, field, dev, misc, zQ, iz, dzc, dzd, ood2, Lx, zP, tPz);
