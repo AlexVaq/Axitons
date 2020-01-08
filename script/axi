@@ -1,0 +1,15 @@
+#AXITONS_DIR= ....
+
+if [ "$1" == "copy" ]; then
+        cp $AXITONS_DIR/script/axit-ex.sh ./
+        exit 1
+fi
+
+if [ "$1" == "" ]; then
+        echo Options:
+        echo plotax
+else
+        echo "axi ipython > rm"
+        echo $1 $2 $3
+        ipython $AXITONS_DIR/script/$1.py $2 $3
+fi
