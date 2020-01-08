@@ -58,14 +58,14 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 	if (idx != 0) { // FIXME SLOW AS HELL
 		pPc = 1.0/((Float) idx);
 		#pragma unroll
-		for (int nIdx=1; nIdx<nNeig+1; nIdx++)
+		for (int nIdx=1; nIdx<=nNeig; nIdx++)
 		{
 			auto rIdx  = __sad (idx, nIdx, 0);
-			mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1) ;
+			mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
 		}
 	} else {
 		#pragma unroll
-		for (int nIdx=1; nIdx<nNeig+1; nIdx++){
+		for (int nIdx=1; nIdx<=nNeig; nIdx++){
 			mel += (field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx-1);
 		}
 	}
