@@ -56,6 +56,7 @@ void	PrintUsage(char *name)
 	printf("  --prec  double/single         Precision of the axion field simulation (default single)\n");
 	printf("  --prop  leap/rkn4/om2/om4     Numerical propagator to be used for molecular dynamics (default, use rkn4).\n");
 	printf("  --steps [int]                 Number of steps of the simulation (default 500).\n");
+	printf("  --nn    [int]                 Number of neighbours in the laplacian (1-4, default 1).\n");
 	printf("  --wDz   [float]               Adaptive time step dz = wDz/frequency [l/raxion3D].\n");
 
 	printf("\nPhysical parameters:\n");
@@ -66,6 +67,7 @@ void	PrintUsage(char *name)
 	printf("  --qcd   [float]               Exponent of topological susceptibility (default 7).\n");
 	printf("  --ind3  [float]               Factor multiplying axion mass^2 (default, 1).\n");
 	printf("                                Setting 0.0 turns on massless Axion mode.\n");
+	printf("  --gm    [float]               Damping for the field at large r (last 10\% of the points, default 1.0).\n");
 
 
 	printf("\nInitial conditions:\n");
@@ -102,6 +104,7 @@ iParms	parseArgs (int argc, char *argv[])
 	defaultParms.fExp     = Radiation;
 	defaultParms.fMod     = FieldNonCompact;
 	defaultParms.wDz      = 0.8;
+	defaultParms.gamma    = 1.0;
 
 	defaultParms.cType    = IcFlat;
 	defaultParms.parm1    = 1.0;
@@ -174,6 +177,30 @@ iParms	parseArgs (int argc, char *argv[])
 			}
 
 			defaultParms.nSize = sizeN;
+
+			i++;
+			procArgs++;
+			passed = true;
+			goto endFor;
+		}
+
+		if (!strcmp(argv[i], "--gm"))
+		{
+			if (i+1 == argc)
+			{
+				printf("Error: I need a value for gamma.\n");
+				exit(1);
+			}
+
+			double gamma = atof(argv[i+1]);
+
+			if (gamma < 0.)
+			{
+				printf("Error: Gamma must be larger than or equal to 0.\n");
+				exit(1);
+			}
+
+			defaultParms.gamma = gamma;
 
 			i++;
 			procArgs++;

@@ -49,7 +49,7 @@ static __device__ __forceinline__ constexpr Float C(int nIdx) {
 }
 
 template<typename Float, const int nNeig, const bool wMod>
-static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Float * __restrict__ field, Float * __restrict__ dev, Float * __restrict__ misc, const Float zQ,
+static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Float * __restrict__ field, Float * __restrict__ dev, Float * __restrict__ misc, const Float gm, const Float zQ,
 							 const Float iz, const Float dzc, const Float dzd, const Float ood2, const int Lx, const Float zP, const Float tPz)
 {
 	Float mel = 0.0, pPc, a, f0n;
@@ -88,6 +88,12 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 	a = mel*ood2 - zQ*sin(f0n*iz);
 
 	mel	 = dev[idx];
+
+	if (idx > Lx*0.8) {	// FIXME No hardcode this 0.8
+		Float nGm = gm*(Lx - idx)/((Float) idx);
+		a         = (a - nGm*mel)/(1. + 0.5*nGm*iz*dzc);
+	}
+
 	mel	+= a*dzc;
 	dev[idx] = mel;
 	mel	*= dzd;
@@ -97,7 +103,7 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 }
 
 template<typename Float, const int nNeig, const bool wMod>
-__global__ void	propagateKernel(const Float * __restrict__ field, Float * __restrict__ dev, Float * __restrict__ misc, const Float zQ, const Float dzc, const Float dzd,
+__global__ void	propagateKernel(const Float * __restrict__ field, Float * __restrict__ dev, Float * __restrict__ misc, const Float gamma, const Float zQ, const Float dzc, const Float dzd,
 				const Float ood2, const Float iz, const int Lx, const Float zP=0, const Float tPz=0)
 {
 	uint idx = threadIdx.x + blockDim.x*(blockIdx.x + gridDim.x*blockIdx.y);
@@ -105,11 +111,11 @@ __global__ void	propagateKernel(const Float * __restrict__ field, Float * __rest
 
 	if	(idx >= Lx - nNeig)
 		return;
-	propagateCoreGpu<Float,nNeig,wMod>(idx, field, dev, misc, zQ, iz, dzc, dzd, ood2, Lx, zP, tPz);
+	propagateCoreGpu<Float,nNeig,wMod>(idx, field, dev, misc, gamma, zQ, iz, dzc, dzd, ood2, Lx, zP, tPz);
 }
 
 void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __restrict__ misc, const double z, const double dz, const double c, const double d, const double ood2,
-		const double aMass2, const int Lx, FieldPrecision precision, const int nNeig, const int xBlock, const int yBlock, const int zBlock)
+		const double aMass2, const int Lx, FieldPrecision precision, const int nNeig, const double gamma, const int xBlock, const int yBlock, const int zBlock)
 {
 	#define	BLSIZE 256
 	dim3 gridSize((Lx+BLSIZE-1)/BLSIZE,1,1);
@@ -125,19 +131,19 @@ void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __
 		switch (nNeig) {
 			default:
 			case 1:
-			propagateKernel<double,1,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, zQ, dzc, dzd, ood2, iZ, Lx);
+			propagateKernel<double,1,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, gamma, zQ, dzc, dzd, ood2, iZ, Lx);
 			break;
 
 			case 2:
-			propagateKernel<double,2,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, zQ, dzc, dzd, ood2, iZ, Lx);
+			propagateKernel<double,2,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, gamma, zQ, dzc, dzd, ood2, iZ, Lx);
 			break;
 
 			case 3:
-			propagateKernel<double,3,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, zQ, dzc, dzd, ood2, iZ, Lx);
+			propagateKernel<double,3,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, gamma, zQ, dzc, dzd, ood2, iZ, Lx);
 			break;
 
 			case 4:
-			propagateKernel<double,4,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, zQ, dzc, dzd, ood2, iZ, Lx);
+			propagateKernel<double,4,false><<<gridSize,blockSize,0>>>((const double *) field, (double *) dev, (double *) misc, gamma, zQ, dzc, dzd, ood2, iZ, Lx);
 			break;
 		}
 	}
@@ -151,19 +157,19 @@ void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __
 		switch (nNeig) {
 			default:
 			case 1:
-			propagateKernel<float, 1,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, zQ, dzc, dzd, (float) ood2, iZ, Lx);
+			propagateKernel<float, 1,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, gamma, zQ, dzc, dzd, (float) ood2, iZ, Lx);
 			break;
 
 			case 2:
-			propagateKernel<float, 2,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, zQ, dzc, dzd, (float) ood2, iZ, Lx);
+			propagateKernel<float, 2,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, gamma, zQ, dzc, dzd, (float) ood2, iZ, Lx);
 			break;
 
 			case 3:
-			propagateKernel<float, 3,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, zQ, dzc, dzd, (float) ood2, iZ, Lx);
+			propagateKernel<float, 3,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, gamma, zQ, dzc, dzd, (float) ood2, iZ, Lx);
 			break;
 
 			case 4:
-			propagateKernel<float, 4,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, zQ, dzc, dzd, (float) ood2, iZ, Lx);
+			propagateKernel<float, 4,false><<<gridSize,blockSize,0>>>((const float *) field, (float *) dev, (float *) misc, gamma, zQ, dzc, dzd, (float) ood2, iZ, Lx);
 			break;
 		}
 	}
@@ -198,17 +204,17 @@ void	propModGpu(const void * __restrict__ field, void * __restrict__ dev, void *
 }
 */
 void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __restrict__ misc, const double z, const double dz, const double c, const double d, const double ood2,
-		const double aMass2, const int Lx, FieldPrecision precision, const int nNeig, const int xBlock, const int yBlock, const int zBlock, const FieldType wMod)
+		const double aMass2, const int Lx, FieldPrecision precision, const int nNeig, const double gamma, const int xBlock, const int yBlock, const int zBlock, const FieldType wMod)
 {
 	switch (wMod) {
 
 		case	FieldCompact:
 			printf ("Compact propagator not implemented\n");
-			//propModGpu(field, dev, misc, z, dz, c, d, ood2, aMass2, Lx, precision, xBlock, yBlock, zBlock);
+			//propModGpu(field, dev, misc, z, dz, c, d, ood2, aMass2, Lx, precision, gamma, xBlock, yBlock, zBlock);
 			break;
 
 		case	FieldNonCompact:
-			propGpu	  (field, dev, misc, z, dz, c, d, ood2, aMass2, Lx, precision, nNeig, xBlock, yBlock, zBlock);
+			propGpu	  (field, dev, misc, z, dz, c, d, ood2, aMass2, Lx, precision, nNeig, gamma, xBlock, yBlock, zBlock);
 			break;
 	}
 

@@ -32,6 +32,7 @@
 		int		dump;
 		int		fIndex;
 		double		wTime;
+		double		gamma;
 
 		std::string	outputName;
 		std::string	outputDir;
