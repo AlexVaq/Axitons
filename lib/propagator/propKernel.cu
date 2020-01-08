@@ -62,7 +62,7 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 		for (int nIdx=1; nIdx<nNeig; nIdx++)
 		{
 			auto rIdx  = __sad (idx, nIdx, 0);
-			mel       += (field[idx+nIdx]*(((Float) nIdx) + pPc) + field[rIdx]*(((Float) nIdx) - pPc))*C<Float,nNeig>(nIdx) - f0n*C<Float,nNeig>(nIdx);
+			mel       += (field[idx+nIdx]*(((Float) nIdx) + pPc) + field[rIdx]*(((Float) nIdx) - pPc) - 2*f0n)*C<Float,nNeig>(nIdx) ;
 		}
 	} else {
 		#pragma unroll
@@ -202,7 +202,7 @@ void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __
 		const double aMass2, const int Lx, FieldPrecision precision, const int nNeig, const int xBlock, const int yBlock, const int zBlock, const FieldType wMod)
 {
 	switch (wMod) {
-	
+
 		case	FieldCompact:
 			printf ("Compact propagator not implemented\n");
 			//propModGpu(field, dev, misc, z, dz, c, d, ood2, aMass2, Lx, precision, xBlock, yBlock, zBlock);
