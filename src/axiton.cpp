@@ -24,7 +24,9 @@ int	main (int argc, char *argv[])
 	Hdf5ReadWriter	IOHandler(myParms);
 	Generator	AxitonFactory(myParms.cType, axiton);
 
-	AxitonFactory.Construct(myParms.parm1, myParms.parm2, myParms.zInit);
+	auto R   = axiton->R<Radiation>();
+	printf (" - z = %f R = %f o2 = %e\n",  axiton->z(), R, 1.0/myCosmos.Delta());
+	AxitonFactory.Construct(myParms.parm1*myParms.zInit, myParms.parm2, myParms.zInit);
 
 	IOHandler.writeConf(&myCosmos, axiton);
 	IOHandler.nextFile ();
@@ -88,7 +90,7 @@ int	main (int argc, char *argv[])
 		IOHandler.writeConf(&myCosmos, axiton);
 		auto R   = axiton->R<Radiation>();
 		auto maa = myCosmos.AxionMassSq(R);
-		printf (" - z = %f R = %f m2 = %e \n",  axiton->z(), R, sqrt(maa));
+		printf (" - z = %f R = %f mA = %e o2 = %e\n",  axiton->z(), R, sqrt(maa),1.0/myCosmos.Delta());
 
 		if (axiton->z() + dz > myParms.zEnd)
 			{

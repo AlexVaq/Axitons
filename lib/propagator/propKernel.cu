@@ -53,21 +53,24 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 							 const Float iz, const Float dzc, const Float dzd, const Float ood2, const int Lx, const Float zP, const Float tPz)
 {
 	Float mel = 0.0, pPc, a, f0n;
-
+	// printf("z %f idx %d zQ %f dzc dzd %e %e ood2 %e Lx %d nNeig %d\n",1./iz,idx,zQ,dzc,dzd,ood2,Lx,nNeig);
 	f0n = field[idx];
 
 	if (idx != 0) { // FIXME SLOW AS HELL
-		pPc = 1.0/idx;
+		pPc = 1.0/((Float) idx);
 		#pragma unroll
-		for (int nIdx=1; nIdx<nNeig; nIdx++)
+		for (int nIdx=1; nIdx<nNeig+1; nIdx++)
 		{
 			auto rIdx  = __sad (idx, nIdx, 0);
-			mel       += (field[idx+nIdx]*(((Float) nIdx) + pPc) + field[rIdx]*(((Float) nIdx) - pPc) - 2*f0n)*C<Float,nNeig>(nIdx) ;
+			mel       += (field[idx+nIdx]*(1.0 + pPc) + field[rIdx]*(1.0 - pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1) ;
+			// printf("nIdx %d C %e\n",nIdx,C<Float,nNeig>(nIdx-1));
 		}
 	} else {
 		#pragma unroll
-		for (int nIdx=1; nIdx<nNeig; nIdx++)
-			mel += (field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx);
+		for (int nIdx=1; nIdx<nNeig+1; nIdx++){
+			mel += (field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx-1);
+			// printf("nIdx %d C %e\n",nIdx,C<Float,nNeig>(nIdx-1));
+		}
 	}
 /*
 	if (idx > nNeig) { // FIXME SLOW AS HELL
@@ -105,7 +108,6 @@ __global__ void	propagateKernel(const Float * __restrict__ field, Float * __rest
 
 	if	(idx >= Lx - nNeig)
 		return;
-
 	propagateCoreGpu<Float,nNeig,wMod>(idx, field, dev, misc, zQ, iz, dzc, dzd, ood2, Lx, zP, tPz);
 }
 

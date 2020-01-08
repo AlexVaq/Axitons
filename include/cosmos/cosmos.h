@@ -21,7 +21,7 @@
 
 		public:
 
-				Cosmos(iParms myParms) : nSize(myParms.nSize), lSize(myParms.lSize), delta(lSize/nSize), fExp(myParms.fExp), myParms(myParms) {
+				Cosmos(iParms myParms) : nSize(myParms.nSize), lSize(myParms.lSize), delta(lSize/((double) nSize)), fExp(myParms.fExp), myParms(myParms) {
 
 	 		aMass = std::make_unique<AxionMass> (myParms.zThRes, myParms.zRestore, myParms.indi3, myParms.nQcd);
 		}
