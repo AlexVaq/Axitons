@@ -65,7 +65,7 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 		}
 	} else {
 		#pragma unroll
-		for (int nIdx=1; nIdx<=nNeig; nIdx++){
+		for (int nIdx=1; nIdx<=nNeig; nIdx++) {
 			mel += (field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx-1);
 		}
 	}
