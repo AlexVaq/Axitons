@@ -15,6 +15,7 @@ struct	Hdf5Header {
 	std::string	prec;
 	int		nSize;
 	double		wallTime;
+	double massA;
 };
 
 hid_t	createGroup	(std::string gName, hid_t base_id) {
@@ -51,6 +52,7 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
 	IOHandler.writeAttribute("nQcd",            H5T_NATIVE_DOUBLE, &myHead.nQcd,         gid);
 	IOHandler.writeAttribute("z",               H5T_NATIVE_DOUBLE, &myHead.z,            gid);
 	IOHandler.writeAttribute("R",               H5T_NATIVE_DOUBLE, &myHead.R,            gid);
+	IOHandler.writeAttribute("Axion mass",      H5T_NATIVE_DOUBLE, &myHead.massA,        gid);
 	IOHandler.writeAttribute("Expansion",       hdf5String,        &myHead.exp.at(0),    gid);
 
 	H5Gclose (gid);
@@ -220,6 +222,7 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 	myHeader.icParm2  = bck->InitParms().parm2;
 	myHeader.pType    = "RKN4"; // Use switch when the other propagators are ready
 	myHeader.nSize    = bck->CosmosLatt();
+	myHeader.massA    = sqrt(bck->AxionMassSq(myHeader.R));
 
 	switch (field->Precision()) {
 		case	SinglePrecision:

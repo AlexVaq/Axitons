@@ -36,10 +36,16 @@ int	main (int argc, char *argv[])
 	double delta = myCosmos.Delta();
 	double dz;
 
-	if (myParms.nSteps == 0)
-		dz = 0.;
-	else
-		dz = (myParms.zEnd - myParms.zInit)/((double) myParms.nSteps);
+	if (myParms.wDz == 0.0){
+		if (myParms.nSteps == 0)
+			dz = 0.;
+		else
+			dz = (myParms.zEnd - myParms.zInit)/((double) myParms.nSteps);
+		printf ("User specified time step (dz = %.2e)\n",dz); fflush(stdout);
+	} else {
+		dz = myParms.wDz*delta/sqrt(12.);
+		printf ("Dynamical time step (dz = %.2e)\n",dz); fflush(stdout);
+	}
 
 	std::chrono::high_resolution_clock::time_point start, current, old;
 	std::chrono::milliseconds elapsed;
@@ -65,8 +71,14 @@ int	main (int argc, char *argv[])
 	printf ("Initial z = %f\n",  axiton->z());
 	initPropagator (myParms.pType, &myCosmos, axiton, myParms.nNeig);
 
+	bool endLoop = false;
 	for (int zloop = 0; zloop < nLoops; zloop++)
 	{
+		if (endLoop){
+			propagate (dz);
+			break;
+		}
+
 		for (int zsubloop = 0; zsubloop < dump; zsubloop++) {
 			propagate (dz);
 		}
@@ -74,10 +86,23 @@ int	main (int argc, char *argv[])
 		axiton->transferField(FieldBase | FieldDev, DeviceToHost);
 		IOHandler.nextFile();
 		IOHandler.writeConf(&myCosmos, axiton);
+		auto R   = axiton->R<Radiation>();
+		auto maa = myCosmos.AxionMassSq(R);
+		printf (" - z = %f R = %f m2 = %e \n",  axiton->z(), R, sqrt(maa));
+
+		if (axiton->z() + dz > myParms.zEnd)
+			{
+				dz = myParms.zEnd - axiton->z();
+				endLoop = true;
+			}
 	}
 
 	current = std::chrono::high_resolution_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current - start);
+
+	axiton->transferField(FieldBase | FieldDev, DeviceToHost);
+	IOHandler.nextFile();
+	IOHandler.writeConf(&myCosmos, axiton);
 
 	printf ("Final z  = %f\n", axiton->z());
 	printf ("#_steps  = %i\n", nLoops*dump);

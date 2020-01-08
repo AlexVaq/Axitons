@@ -110,8 +110,8 @@ iParms	parseArgs (int argc, char *argv[])
 	defaultParms.lSize    = 4.0;
 	defaultParms.indi3    = 1.0;
 	defaultParms.nQcd     = 7.0;
-	defaultParms.zThRes   = 0.5;
-	defaultParms.zRestore = 5.0;
+	defaultParms.zThRes   = 16.0;
+	defaultParms.zRestore = 1.0e+10;
 	defaultParms.zInit    = 0.5;
 	defaultParms.zEnd     = 0.6;
 
