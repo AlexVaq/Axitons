@@ -352,7 +352,7 @@ iParms	parseArgs (int argc, char *argv[])
 
 			double wDz = atof(argv[i+1]);
 
-			if (wDz <= 0.)
+			if (wDz < 0.)
 			{
 				printf("Error: backwards propagation?\n");
 				exit(1);
