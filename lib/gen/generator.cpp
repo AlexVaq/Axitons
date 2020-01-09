@@ -35,6 +35,25 @@ void	fillFlat (Axiton *field, double value) {
 	}
 }
 
+void	fillOvr2 (Axiton *field, double value) {
+
+	switch (field->Precision()) {
+		case SinglePrecision:
+
+		fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return (x == 0) ? (float) value : ((float)  value)/(((float)  x)*((float)  x)); } );
+		fillArray<float>  (field->devCpu  (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
+		fillArray<float>  (field->miscCpu (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
+		break;
+
+		case DoublePrecision:
+
+		fillArray<double> (field->fieldCpu(), field->Size(), [&] (size_t x) -> double { return (x == 0) ? value : value/(((double)  x)*((double)  x)); } );
+		fillArray<double> (field->devCpu  (), field->Size(), [&] (size_t x) -> double { return 0.; });
+		fillArray<double> (field->miscCpu (), field->Size(), [&] (size_t x) -> double { return 0.; });
+		break;
+	}
+}
+
 void	fillSinc2(Axiton *field, double value, int coef) {
 
 	double	cf = ((double) coef)/((double) field->Size());
@@ -42,8 +61,27 @@ void	fillSinc2(Axiton *field, double value, int coef) {
 	switch (field->Precision()) {
 		case SinglePrecision:
 
-		// fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return (x == 0) ? (float) value : ((float)  value)*(sin(cf*x)*sin(cf*x)/(cf*cf*x*x)); } );
-		// fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return (x == 0) ?  (float) value : ((x > field->Size()*0.9) ? 0.0 : ((float)  value)/(1.0 + cf*x)); } );
+		fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return (x == 0) ? (float) value : ((float)  value)*(sin(cf*x)*sin(cf*x)/(cf*cf*x*x)); } );
+		fillArray<float>  (field->devCpu  (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
+		fillArray<float>  (field->miscCpu (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
+		break;
+
+		case DoublePrecision:
+
+		fillArray<double> (field->fieldCpu(), field->Size(), [&] (size_t x) -> double { return (x == 0) ? value: value*(sin(cf*x)*sin(cf*x)/(cf*cf*x*x)); } );
+		fillArray<double> (field->devCpu  (), field->Size(), [&] (size_t x) -> double { return 0.; });
+		fillArray<double> (field->miscCpu (), field->Size(), [&] (size_t x) -> double { return 0.; });
+		break;
+	}
+}
+
+void	fillOvX(Axiton *field, double value, int coef) {
+
+	double	cf = ((double) coef)/((double) field->Size());
+
+	switch (field->Precision()) {
+		case SinglePrecision:
+
 		fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return ((float)  value)/(1.0 + cf*x); } );
 		fillArray<float>  (field->devCpu  (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
 		fillArray<float>  (field->miscCpu (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
@@ -51,7 +89,6 @@ void	fillSinc2(Axiton *field, double value, int coef) {
 
 		case DoublePrecision:
 
-		// fillArray<double> (field->fieldCpu(), field->Size(), [&] (size_t x) -> double { return (x == 0) ? value: value*(sin(cf*x)*sin(cf*x)/(cf*cf*x*x)); } );
 		fillArray<double> (field->fieldCpu(), field->Size(), [&] (size_t x) -> double { return value/(1.0 + cf*x); } );
 		fillArray<double> (field->devCpu  (), field->Size(), [&] (size_t x) -> double { return 0.; });
 		fillArray<double> (field->miscCpu (), field->Size(), [&] (size_t x) -> double { return 0.; });
@@ -65,6 +102,14 @@ void	Generator::Construct (double parm1, int parm2, double zInit) {
 
 		case IcFlat:
 		fillFlat (field, parm1);
+		break;
+
+		case IcOvr2:
+		fillOvr2 (field, parm1);
+		break;
+
+		case IcOvX:
+		fillOvX  (field, parm1, parm2);
 		break;
 
 		case IcSinc2:

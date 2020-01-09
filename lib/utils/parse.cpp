@@ -589,7 +589,7 @@ iParms	parseArgs (int argc, char *argv[])
 		{
 			if (i+1 == argc)
 			{
-				printf("Error: I need a value for the configuration type (flat/sinc2).\n");
+				printf("Error: I need a value for the configuration type (flat/r2/hyper/sinc2).\n");
 				exit(1);
 			}
 
@@ -597,6 +597,10 @@ iParms	parseArgs (int argc, char *argv[])
 
 			if (!strcmp(argv[i+1], "flat"))
 				cType = IcFlat;
+			else if (!strcmp(argv[i+1], "r2"))
+				cType = IcOvr2;
+			else if (!strcmp(argv[i+1], "hyper"))
+				cType = IcOvX;
 			else if (!strcmp(argv[i+1], "sinc2"))
 				cType = IcSinc2;
 			else

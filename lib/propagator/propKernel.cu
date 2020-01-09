@@ -66,7 +66,7 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 				mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
 			}
 		} else {
-			mel += (field[idx-2]-f0n)*(1.0 + pPc) -2.0*(field[idx-1]-f0n)*(1 + 2.0*pPc);
+			mel += (field[idx-2]-f0n)*(1.0 + pPc) - 2.0*(field[idx-1]-f0n)*(1 + 2.0*pPc);
 		}
 	} else {
 		#pragma unroll
@@ -134,9 +134,8 @@ __global__ void	propagateKernel(const Float * __restrict__ field, Float * __rest
 
 	// if	(idx >= Lx - nNeig)
 	// 	return;
-	if	(idx > Lx)
-		return;
-	propagateCoreGpu<Float,nNeig,wMod>(idx, field, dev, misc, gamma, zQ, iz, dzc, dzd, ood2, Lx, zP, tPz);
+	if	(idx < Lx)
+		propagateCoreGpu<Float,nNeig,wMod>(idx, field, dev, misc, gamma, zQ, iz, dzc, dzd, ood2, Lx, zP, tPz);
 }
 
 void	propGpu(const void * __restrict__ field, void * __restrict__ dev, void * __restrict__ misc, const double z, const double dz, const double c, const double d, const double ood2,

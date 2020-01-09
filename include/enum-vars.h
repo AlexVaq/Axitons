@@ -45,6 +45,8 @@
 			IcNone,
 			IcRead,
 			IcFlat,
+			IcOvr2,
+			IcOvX,
 			IcSinc2,
 		}	InitialCond;
 
