@@ -64,11 +64,13 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 			{
 				auto rIdx  = __sad (idx, nIdx, 0);
 				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
-				mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
+				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
+				mel       += ((field[idx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,nNeig>(nIdx-1);
 			}
 		} else {
 			// mel += (field[idx-2]-f0n)*(1.0 + pPc) - 2.0*(field[idx-1]-f0n)*(1 + 2.0*pPc);
 			mel +=  -(field[idx-3]-f0n)*(1.0 + 2.0*pPc/3.0)  + (field[idx-2]-f0n)*(4.0 + 3.0*pPc) - (field[idx-1]-f0n)*(5.0 + 6.0*pPc);
+			// mel += 0.0;
 		}
 	} else {
 		#pragma unroll
