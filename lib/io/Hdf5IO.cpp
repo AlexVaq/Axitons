@@ -216,6 +216,14 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 		case	IcSinc2:
 		myHeader.icType	= "Sinc2";
 		break;
+
+		case	IcOvr2:
+		myHeader.icType	= "1/r2";
+		break;
+
+		case	IcOvX:
+		myHeader.icType	= "1/(1+r)";
+		break;
 	}
 
 	myHeader.icParm1  = bck->InitParms().parm1;

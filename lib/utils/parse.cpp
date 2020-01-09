@@ -71,10 +71,10 @@ void	PrintUsage(char *name)
 
 
 	printf("\nInitial conditions:\n");
-	printf("  --ctype iflat/sinc2           Initial configuration, either with smoothing or with FFT and a maximum momentum\n");
+	printf("  --ctype flat/sinc2/r2/hyper   Initial configuration\n");
 	printf("\n");
-	printf("  --kmax  [int]                 Maximum momentum squared for the generation of the configuration with --ctype kmax/tkachev (default 2)\n");
-	printf("  --kcr   [float]               kritical kappa (default 1.0).\n");
+	printf("  --kmax  [int]                 Characteristic momentum (default 2)\n");
+	printf("  --kcr   [float]               Center amplitude (default 1.0).\n");
 	printf("\n");
 	printf("  --sIter [int]                 Number of smoothing steps for the generation of the configuration with --ctype smooth (default 40)\n");
 	printf("  --alpha [float]               alpha parameter for the smoothing (default 0.143).\n");
@@ -600,6 +600,8 @@ iParms	parseArgs (int argc, char *argv[])
 			else if (!strcmp(argv[i+1], "r2"))
 				cType = IcOvr2;
 			else if (!strcmp(argv[i+1], "hyper"))
+				cType = IcOvX;
+			else if (!strcmp(argv[i+1], "ir"))
 				cType = IcOvX;
 			else if (!strcmp(argv[i+1], "sinc2"))
 				cType = IcSinc2;

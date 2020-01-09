@@ -82,7 +82,7 @@ void	fillOvX(Axiton *field, double value, int coef) {
 	switch (field->Precision()) {
 		case SinglePrecision:
 
-		fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return ((float)  value)/(1.0 + cf*x); } );
+		fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return ((float)  value)/(1.0 + ((float) cf)*x); } );
 		fillArray<float>  (field->devCpu  (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
 		fillArray<float>  (field->miscCpu (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
 		break;
