@@ -69,8 +69,17 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 			}
 		} else {
 			// mel += (field[idx-2]-f0n)*(1.0 + pPc) - 2.0*(field[idx-1]-f0n)*(1 + 2.0*pPc);
-			mel +=  -(field[idx-3]-f0n)*(1.0 + 2.0*pPc/3.0)  + (field[idx-2]-f0n)*(4.0 + 3.0*pPc) - (field[idx-1]-f0n)*(5.0 + 6.0*pPc);
+			// mel +=  -(field[idx-3]-f0n)*(1.0 + 2.0*pPc/3.0)  + (field[idx-2]-f0n)*(4.0 + 3.0*pPc) - (field[idx-1]-f0n)*(5.0 + 6.0*pPc);
 			// mel += 0.0;
+			#pragma unroll
+			for (int nIdx=1; nIdx<=nNeig; nIdx++)
+			{
+				auto rIdx  = idx -nNeig -1;
+				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
+				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
+				mel       += ((field[rIdx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx-nIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,nNeig>(nIdx-1);
+			}
+
 		}
 	} else {
 		#pragma unroll
@@ -79,38 +88,6 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 		}
 	}
 
-	// if (idx != 0) { // FIXME SLOW AS HELL
-	// 	pPc = 1.0/((Float) idx);
-	// 	#pragma unroll
-	// 	for (int nIdx=1; nIdx<=nNeig; nIdx++)
-	// 	{
-	// 		auto rIdx  = __sad (idx, nIdx, 0);
-	// 		mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
-	// 	}
-	// } else {
-	// 	#pragma unroll
-	// 	for (int nIdx=1; nIdx<=nNeig; nIdx++) {
-	// 		mel += (field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx-1);
-	// 	}
-	// }
-
-
-/*
-	if (idx > nNeig) { // FIXME SLOW AS HELL
-		pPc = 1.0/cIdx;
-		#pragma unroll
-		for (int nIdx=1; nIdx<nNeig; nIdx++)
-			mel += (field[idx+nIdx]*(((Float) nIdx) + pPc) + field[idx-nIdx]*(((Float) nIdx) - pPc))*C[nIdx] - f0n*C[nIdx];
-	} else {
-		for (int cIdx=0;     i<idx;   i++)
-			mel += (field[cIdx+idx]*(((Float) nIdx) + pPc) + field[cIdx-idx]*(((Float) nIdx) - pPc))*C[cIdx] - f0n*C[cIdx];
-
-		mel += (field[idx*2]*(((Float) idx) + pPc) + f0n*(((Float) idx) - pPc - 1))*C[idx];
-
-		for (int cIdx=idx+1; i<nNeig; i++)
-			mel += (field[idx+cIdx]*(((Float) cIdx) + pPc) + field[idx-cIdx]*(((Float) cIdx) - pPc))*C[cIdx] - f0n*C[cIdx];
-	}
-*/
 	a = mel*ood2 - zQ*sin(f0n*iz);
 
 	mel	 = dev[idx];
