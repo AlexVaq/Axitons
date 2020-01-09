@@ -63,7 +63,8 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 			for (int nIdx=1; nIdx<=nNeig; nIdx++)
 			{
 				auto rIdx  = __sad (idx, nIdx, 0);
-				mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
+				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
+				mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
 			}
 		} else {
 			// mel += (field[idx-2]-f0n)*(1.0 + pPc) - 2.0*(field[idx-1]-f0n)*(1 + 2.0*pPc);
