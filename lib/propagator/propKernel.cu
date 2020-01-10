@@ -74,7 +74,7 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 			#pragma unroll
 			for (int nIdx=1; nIdx<=nNeig; nIdx++)
 			{
-				auto rIdx  = idx -nNeig -1;
+				auto rIdx  = Lx -nNeig -1;
 				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
 				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
 				mel       += ((field[rIdx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx-nIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,nNeig>(nIdx-1);
@@ -89,6 +89,8 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 	}
 
 	a = mel*ood2 - zQ*sin(f0n*iz);
+	// a = mel*ood2 - zQ*(f0n*iz);
+	// a = -1;
 
 	mel	 = dev[idx];
 
