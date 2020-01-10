@@ -22,7 +22,7 @@ int	main (int argc, char *argv[])
 	axiton = new Axiton (myParms.nSize, myParms.fPrec);
 
 	Hdf5ReadWriter	IOHandler(myParms);
-	Generator	AxitonFactory(myParms.cType, axiton);
+	Generator	AxitonFactory(myParms.cType, axiton, &myCosmos);
 
 	auto R   = axiton->R<Radiation>();
 	printf (" - z = %f R = %f o2 = %e\n",  axiton->z(), R, 1.0/myCosmos.Delta());
@@ -89,7 +89,7 @@ int	main (int argc, char *argv[])
 		IOHandler.writeConf(&myCosmos, axiton);
 		auto R   = axiton->R<Radiation>();
 		auto maa = myCosmos.AxionMassSq(R);
-		printf (" - z = %f R = %f mA = %e o2 = %e\n",  axiton->z(), R, sqrt(maa),1.0/myCosmos.Delta());
+		printf (" - z = %f (dz %.2e) R = %f mA = %e o2 = %e\n",  axiton->z(), dz, R, sqrt(maa),1.0/myCosmos.Delta());
 
 		if (axiton->z() + dz > myParms.zEnd)
 			{
