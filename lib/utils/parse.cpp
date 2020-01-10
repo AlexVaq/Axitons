@@ -320,6 +320,22 @@ iParms	parseArgs (int argc, char *argv[])
 			goto endFor;
 		}
 
+		if (!strcmp(argv[i], "--zc"))
+		{
+			if (i+1 == argc)
+			{
+				printf("Error: I need a value for the critical time.\n");
+				exit(1);
+			}
+
+			defaultParms.zThRes = atof(argv[i+1]);
+
+			i++;
+			procArgs++;
+			passed = true;
+			goto endFor;
+		}
+
 		if (!strcmp(argv[i], "--lsize"))
 		{
 			if (i+1 == argc)
@@ -605,6 +621,8 @@ iParms	parseArgs (int argc, char *argv[])
 				cType = IcOvX;
 			else if (!strcmp(argv[i+1], "sinc2"))
 				cType = IcSinc2;
+			else if (!strcmp(argv[i+1], "user"))
+				cType = IcGen;
 			else
 			{
 				printf("Error: Unrecognized configuration type %s\n", argv[i+1]);

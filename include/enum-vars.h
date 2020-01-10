@@ -48,6 +48,7 @@
 			IcOvr2,
 			IcOvX,
 			IcSinc2,
+			IcGen,
 		}	InitialCond;
 
 		typedef enum	PropagatorType_s {

@@ -1,3 +1,6 @@
+#include<cstdlib>
+#include<cstring>
+
 #include <cmath>
 #include <functional>
 
@@ -96,6 +99,26 @@ void	fillOvX(Axiton *field, double value, int coef) {
 	}
 }
 
+void	Generator::fillGen() {
+
+
+	switch (field->Precision()) {
+		case SinglePrecision:
+
+		fillArray<float>  (field->fieldCpu(), field->Size(), [&] (size_t x) -> float  { return ((float) sm(x*cosmo->Delta())); } );
+		fillArray<float>  (field->devCpu  (), field->Size(), [&] (size_t x) -> float  { return ((float) sv(x*cosmo->Delta())); } );
+		fillArray<float>  (field->miscCpu (), field->Size(), [&] (size_t x) -> float  { return 0.f; });
+		break;
+
+		case DoublePrecision:
+
+		fillArray<double> (field->fieldCpu(), field->Size(), [&] (size_t x) -> double { return sm(x*cosmo->Delta()); } );
+		fillArray<double> (field->devCpu  (), field->Size(), [&] (size_t x) -> double { return sv(x*cosmo->Delta()); });
+		fillArray<double> (field->miscCpu (), field->Size(), [&] (size_t x) -> double { return 0.; });
+		break;
+	}
+}
+
 void	Generator::Construct (double parm1, int parm2, double zInit) {
 
 	switch (icType) {
@@ -116,6 +139,11 @@ void	Generator::Construct (double parm1, int parm2, double zInit) {
 		fillSinc2(field, parm1, parm2);
 		break;
 
+		case IcGen:
+			SplineSetup();
+			fillGen();
+		break;
+
 		case IcNone:
 		default:
 		break;
@@ -124,4 +152,59 @@ void	Generator::Construct (double parm1, int parm2, double zInit) {
 	field->setStatus    (FieldBaseDev, FieldCpu);
 	field->transferField(FieldBaseDev, HostToDevice);
 	field->zUpdate	    (zInit);
+}
+
+
+
+
+
+//##############################################################################
+
+void Generator::SplineSetup()
+{
+
+  /*Read Cosmology*/
+
+  // char cosName[2048];
+  // if (const char *cosPath = std::getenv("AXITONS_DIR")) {
+  //   if (strlen(cosPath) < 1022) {
+  //     struct stat tStat;
+  //     if (stat(cosPath, &tStat) == 0 && S_ISDIR(tStat.st_mode)) {
+  //       strcpy(cosName, cosPath);
+  //     } else {
+  //       printf("Path %s doesn't exist, using default\n", cosPath);
+  //     }
+  //   }
+  // }
+  // sprintf(cosName, "%s%s", cosName,  "./ics.txt");
+  std::vector<double>	xV, mV, vV;
+  FILE *cFile = nullptr;
+  if (((cFile  = fopen("./ics.txt", "r")) == nullptr)){
+    return ;
+  }
+  else
+  {
+    double x, m, v;
+
+    char buffer[200];
+    fgets(buffer, 200, cFile); // reads header
+    fgets(buffer, 200, cFile); //reads 2nd line space
+
+    fscanf (cFile ,"%lf %lf %lf", &x, &m, &v);
+    while(!feof(cFile)){
+      xV.push_back(x);
+      mV.push_back(m);
+      vV.push_back(v);
+    	fscanf (cFile ,"%lf %lf %lf", &x, &m, &v);
+    }
+  }
+
+	// for (int i; i < xV.size();i++){
+  //   xV[i] *= xV.back();
+	// 	xV[i] *= xV.back();
+  // }
+
+  sm.set_points(xV,mV);
+	sv.set_points(xV,vV);
+	printf("user defined ICs\n");
 }
