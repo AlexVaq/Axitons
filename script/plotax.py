@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
 Update a simple plot as rapidly as possible to measure speed.
@@ -65,42 +65,70 @@ sizeT = len(data)
 print('sizeN %d',sizeN)
 ################################################################################
 
-app = QtGui.QApplication([])
+class MyWindow(pg.GraphicsWindow):
 
-p = pg.plot()
-p.setWindowTitle('pyqtgraph Axiton evol')
-p.setRange(QtCore.QRectF(0, -5, sizeN, 10))
-p.setLabel('bottom', 'Radius', units='L1')
-curve = p.plot()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.timer = QtCore.QTimer()
+        self.plot = self.addPlot()
+        self.plot.setWindowTitle('pyqtgraph Axiton evol')
+        self.plot.setLabel('bottom', 'Radius', units='L1')
+        self.curve = self.plot.plot()
+        self.timer.timeout.connect(self.update)
+        self.tStep = 50
+        self.fps   = None
+        self.timer.start(self.tStep)
+        self.lastTime = time()
+        self.ptr   = 0
+        self.pause = False
+        QtGui.qApp.installEventFilter(self)
+
+    def eventFilter(self, source, event):
+      if event.type() == QtCore.QEvent.KeyPress:
+        key = event.key()
+
+        if key == QtCore.Qt.Key_Space:
+            if self.pause:
+                self.pause = False
+                self.timer.start(self.tStep)
+            else:
+                self.pause = True
+                self.timer.stop()
+        elif key == QtCore.Qt.Key_N:
+                self.tStep = self.tStep + 30
+                if self.tStep > 500:
+                    self.tStep = 500
+                self.timer.setInterval(self.tStep)
+                print("Increased step to", self.tStep)
+        elif key == QtCore.Qt.Key_M:
+                self.tStep = self.tStep - 30
+                if self.tStep < 30:
+                    self.tStep = 20
+                self.timer.setInterval(self.tStep)
+                print("Reduced step to", self.tStep)
+      return super().eventFilter(source, event)
+
+    def update(self):
+        self.curve.setData(data[self.ptr%sizeT])
+        self.ptr += 1
+        now = time()
+        dt = now - self.lastTime
+        self.lastTime = now
+        if self.fps is None:
+            self.fps = 1.0/dt
+        else:
+            s = np.clip(dt*3., 0, 1)
+            self.fps = self.fps * (1-s) + (1.0/dt) * s
+        self.plot.setTitle('z = %.3f     (%d)' % (zdat[self.ptr%sizeT],self.ptr%sizeT))
+        QtGui.QApplication.processEvents()
 
 
-ptr = 0
-lastTime = time()
-fps = None
-def update():
-    global curve, data, ptr, p, lastTime, fps
-    # curve.setData(data[ptr%10])
-    curve.setData(data[ptr%sizeT])
-    ptr += 1
-    now = time()
-    dt = now - lastTime
-    lastTime = now
-    if fps is None:
-        fps = 1.0/dt
-    else:
-        s = np.clip(dt*3., 0, 1)
-        fps = fps * (1-s) + (1.0/dt) * s
-    # p.setTitle('z = %.3f %d (%0.2f fps)' % (zdat[ptr%sizeT],ptr%sizeT, fps))
-    p.setTitle('z = %.3f     (%d)' % (zdat[ptr%sizeT],ptr%sizeT))
-    app.processEvents()  ## force complete redraw for every plot
-timer = QtCore.QTimer()
-timer.timeout.connect(update)
-timer.start(50)
-
-
+app = pg.mkQApp()
+win = MyWindow()
 
 ## Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
     import sys
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-        QtGui.QApplication.instance().exec_()
+        #QtGui.QApplication.instance().exec_()
+        app.exec_()
