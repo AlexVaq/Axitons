@@ -4,7 +4,7 @@
 Update a simple plot as rapidly as possible to measure speed.
 """
 
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.ptime import time
@@ -81,7 +81,7 @@ class MyWindow(pg.GraphicsWindow):
         self.lastTime = time()
         self.ptr   = 0
         self.pause = False
-        QtGui.qApp.installEventFilter(self)
+        QtWidgets.qApp.installEventFilter(self)
 
     def eventFilter(self, source, event):
       if event.type() == QtCore.QEvent.KeyPress:
