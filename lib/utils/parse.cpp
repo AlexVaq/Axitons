@@ -64,11 +64,12 @@ void	PrintUsage(char *name)
 	printf("  --zf    [float]               Final value of the conformal time z (default 1.0).\n");
 	printf("  --Rc    [float]               Critical value of scale factor R, (mass_A^2 = constant for R>Rc) (default 1.e5).\n");
 	printf("  --lsize [float]               Physical size of the system (default 4.0).\n");
+	printf("   --mink                       Switches off expansion of the Universe.\n");
 	printf("  --qcd   [float]               Exponent of topological susceptibility (default 7).\n");
 	printf("  --ind3  [float]               Factor multiplying axion mass^2 (default, 1).\n");
 	printf("                                Setting 0.0 turns on massless Axion mode.\n");
 	printf("  --gm    [float]               Damping for the field at large r (last 10\% of the points, default 1.0).\n");
-
+	
 
 	printf("\nInitial conditions:\n");
 	printf("  --ctype flat/sinc2/r2/hyper   Initial configuration\n");
@@ -719,6 +720,15 @@ iParms	parseArgs (int argc, char *argv[])
 		if (!strcmp(argv[i], "--cax"))
 		{
 			defaultParms.fMod = FieldCompact;
+
+			procArgs++;
+			passed = true;
+			goto endFor;
+		}
+
+		if (!strcmp(argv[i], "--mink"))
+		{
+			defaultParms.fExp = Minkowski;
 
 			procArgs++;
 			passed = true;

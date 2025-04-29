@@ -35,6 +35,9 @@ include_directories(SYSTEM ${HDF5_INCLUDE_DIR})
 find_package(OpenMP REQUIRED)
 find_package(HDF5   REQUIRED)
 
+find_library(FFTW_LIBRARY      NAMES fftw3 fftw           HINTS "$ENV{FFTW_HOME}")
+find_library(FFTW_OMP_LIBRARY  NAMES fftw3_omp fftw_omp   PATHS $ENV{FFTW_HOME}/lib)
+
 #find_library(HDF5_LIBRARY NAMES hdf5 PATHS $HDF5_HOME)
 set(GPU_ARCH sm_50 CACHE STRING "set the GPU architecture (sm_50, sm_52, sm_60, sm_61, sm_62, sm_70)")
 set(GPU_COMP compute_50 CACHE STRING "set the GPU compute capability (compute_50, compute_52, compute_60, compute_61, compute_62, compute_70)")
@@ -66,7 +69,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -w" CACHE STRING
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -fno-inline" CACHE STRING
     "Flags used by the C++ compiler during debug builds." FORCE )
 
-
+include_directories("$ENV{HDF5_HOME}/include")
+include_directories("$ENV{FFTW_HOME}/include")
 include_directories(include)
 include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
 

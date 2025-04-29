@@ -96,12 +96,12 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
 
 	Hdf5ReadWriter::~Hdf5ReadWriter () {
 
-	H5Fclose(file_id);
+	//H5Fclose(file_id);
 }
 
 herr_t	Hdf5ReadWriter::nextFile	(int jump) {
-
-	H5Fclose(file_id);
+	//printf("Im closing file %d\n",file_id);
+	//H5Fclose(file_id);
 
 	fIndex += jump + 1;
 
@@ -267,6 +267,9 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 
 	writeData ("Field", h5Type, field->fieldCpu(), field->Size());
 	writeData ("Dev",   h5Type, field->devCpu(),   field->Size());
+
+	//printf("Im closing file %d",file_id);
+	H5Fclose(file_id);
 }
 
 herr_t	Hdf5ReadWriter::readConf  (Cosmos *bck, Axiton *field) { return	0; }
