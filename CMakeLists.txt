@@ -1,11 +1,11 @@
 # basic setup for cmake
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
 set(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE ON)
-set(CMAKE_CXX_STANDARD_REQUIRED 14)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED 17)
+set(CMAKE_CXX_STANDARD 17)
 
 set(DEFAULT_BUILD "RELEASE")
 set(VALID_BUILDS DEVEL RELEASE DEBUG)
@@ -17,6 +17,7 @@ if(CURRENT_BUILD LESS 0)
   message(SEND_ERROR "Please specify a valid CMAKE_BUILD_TYPE type! Valid build types are: " "${VALID_BUILDS}")
 endif()
 
+set(CMAKE_CUDA_ARCHITECTURES "native")
 
 #
 # PROJECT is Axiton
@@ -28,6 +29,9 @@ project("AXITON")
 # likely to be changed by users
 #######################################################################
 
+set(CMAKE_CUDA "/usr/local/cuda")
+set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
+enable_language(CUDA)
 # do all the build definitions
 
 include_directories(SYSTEM ${HDF5_INCLUDE_DIR})
@@ -39,13 +43,13 @@ find_library(FFTW_LIBRARY      NAMES fftw3 fftw           HINTS "$ENV{FFTW_HOME}
 find_library(FFTW_OMP_LIBRARY  NAMES fftw3_omp fftw_omp   PATHS $ENV{FFTW_HOME}/lib)
 
 #find_library(HDF5_LIBRARY NAMES hdf5 PATHS $HDF5_HOME)
-set(GPU_ARCH sm_50 CACHE STRING "set the GPU architecture (sm_50, sm_52, sm_60, sm_61, sm_62, sm_70)")
-set(GPU_COMP compute_50 CACHE STRING "set the GPU compute capability (compute_50, compute_52, compute_60, compute_61, compute_62, compute_70)")
-set(DEFARCH "500")
-find_package(CUDA REQUIRED)
+set(GPU_ARCH sm_70 CACHE STRING "set the GPU architecture (sm_50, sm_52, sm_60, sm_61, sm_62, sm_70)")
+set(GPU_COMP compute_70 CACHE STRING "set the GPU compute capability (compute_50, compute_52, compute_60, compute_61, compute_62, compute_70)")
+set(DEFARCH "700")
+#find_package(CUDA REQUIRED)
 #set(CUDA_HOST_COMPILER gcc)
 set(CUDA_PROPAGATE_HOST_FLAGS ON)
-set(CUDA_NVCC_FLAGS "-arch=${GPU_COMP} -code=${GPU_ARCH} -ftz=true -prec-div=false -prec-sqrt=false -std=c++14 --expt-relaxed-constexpr")
+set(CUDA_NVCC_FLAGS "-arch=${GPU_COMP} -code=${GPU_ARCH} -ftz=true -prec-div=false -prec-sqrt=false -std=c++17 --expt-relaxed-constexpr")
 
 set(CUDA_NVCC_FLAGS_DEVEL "-O3 -lineinfo" CACHE STRING
     "Flags used by the CUDA compiler during regular development builds." FORCE )
@@ -54,8 +58,8 @@ set(CUDA_NVCC_FLAGS_RELEASE "-O3 -w" CACHE STRING
 set(CUDA_NVCC_FLAGS_HOSTDEBUG "-g -G" CACHE STRING
     "Flags used by the C++ compiler during debug builds." FORCE )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -mcmodel=medium -std=c++14")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -mcmodel=medium -std=c++14")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -mcmodel=medium -std=c++17 -I${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -mcmodel=medium -std=c++17 -I${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wa,-q -lc++")
