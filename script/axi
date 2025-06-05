@@ -11,5 +11,5 @@ if [ "$1" == "" ]; then
 else
         echo "axi ipython > rm"
         echo $1 $2 $3
-        ipython $AXITONS_DIR/script/$1.py $2 $3
+        python3 $AXITONS_DIR/script/$1.py $2 $3
 fi

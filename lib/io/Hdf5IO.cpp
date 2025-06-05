@@ -73,6 +73,8 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
 	IOHandler.writeAttribute("Walltime",        H5T_NATIVE_DOUBLE, &myHead.wallTime,     gid);
 
 	H5Gclose (gid);
+
+	return 0;
 }
 
 	Hdf5ReadWriter::Hdf5ReadWriter (iParms myParms) : outputDir(myParms.outputDir), outputName(myParms.outputName), fIndex(myParms.fIndex) {
@@ -96,12 +98,12 @@ herr_t	writeHeader	(Hdf5ReadWriter &IOHandler, Hdf5Header &myHead) {
 
 	Hdf5ReadWriter::~Hdf5ReadWriter () {
 
-	H5Fclose(file_id);
+	//H5Fclose(file_id);
 }
 
 herr_t	Hdf5ReadWriter::nextFile	(int jump) {
-
-	H5Fclose(file_id);
+	//printf("Im closing file %d\n",file_id);
+	//H5Fclose(file_id);
 
 	fIndex += jump + 1;
 
@@ -135,6 +137,7 @@ herr_t  Hdf5ReadWriter::readAttribute	(std::string attName, hid_t h5Type, void *
 
 herr_t  Hdf5ReadWriter::readAttribute	(std::string attName, hid_t h5Type, void *data) {
 	readAttribute	(attName, h5Type, data, file_id);
+	return 0;
 }
 
 herr_t  Hdf5ReadWriter::writeAttribute	(std::string attName, hid_t h5Type, void *data, hid_t cid)
@@ -155,12 +158,14 @@ herr_t  Hdf5ReadWriter::writeAttribute	(std::string attName, hid_t h5Type, void 
 
 herr_t  Hdf5ReadWriter::writeAttribute	(std::string attName, hid_t h5Type, void *data) {
 	writeAttribute	(attName, h5Type, data, file_id);
+	return 0;
 }
 
 herr_t	Hdf5ReadWriter::writeData (std::string dataName, hid_t h5Type, void *aData, size_t aSize, hid_t cid)
 {
 	hid_t   base_id, dataSpace, sSpace, dataSet;
 	hsize_t dims[1] = { aSize };
+	
 
 	base_id = createGroup (dataName, cid);
 
@@ -168,6 +173,7 @@ herr_t	Hdf5ReadWriter::writeData (std::string dataName, hid_t h5Type, void *aDat
 	dataSpace = H5Screate_simple(1, dims, NULL);
 	dataSet   = H5Dcreate(base_id, "data", h5Type, dataSpace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 	sSpace    = H5Dget_space (dataSet);
+
 
 	/*      Write spectrum data     */
 	if (H5Dwrite(dataSet, h5Type, dataSpace, sSpace, H5P_DEFAULT, aData) < 0) {
@@ -180,10 +186,12 @@ herr_t	Hdf5ReadWriter::writeData (std::string dataName, hid_t h5Type, void *aDat
 	H5Dclose (dataSet);
 	H5Sclose (dataSpace);
 	H5Gclose (base_id);
+	return 0;
 }
 
 herr_t	Hdf5ReadWriter::writeData (std::string dataName, hid_t h5Type, void *aData, size_t aSize) {
 	writeData (dataName, h5Type, aData, aSize, file_id);
+	return 0;
 }
 
 herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
@@ -228,6 +236,10 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 		case	IcGen:
 		myHeader.icType	= "Gen";
 		break;
+
+		case 	IcNone:
+		myHeader.icType = "None";
+		break;
 	}
 
 	myHeader.icParm1  = bck->InitParms().parm1;
@@ -236,7 +248,8 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 	myHeader.nSize    = bck->CosmosLatt();
 	myHeader.massA    = sqrt(bck->AxionMassSq(myHeader.R));
 
-	switch (field->Precision()) {
+	switch (field->Precision()) 
+	{
 		case	SinglePrecision:
 		myHeader.prec	= "Single";
 		break;
@@ -248,7 +261,9 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 
 	myHeader.wallTime = bck->InitParms().wTime;
 
+
 	writeHeader (*this, myHeader);
+
 
 	auto h5Type = H5T_NATIVE_CHAR;
 
@@ -262,11 +277,17 @@ herr_t	Hdf5ReadWriter::writeConf (Cosmos *bck, Axiton *field) {
 		break;
 	}
 
+
 	if (field->fieldStatus() & FieldGpu == 0)
 		field->transferField (FieldBaseDev, HostToDevice);
 
 	writeData ("Field", h5Type, field->fieldCpu(), field->Size());
 	writeData ("Dev",   h5Type, field->devCpu(),   field->Size());
+	
+	//printf("Im closing file %d \n",file_id);
+	H5Fclose(file_id);
+
+	return 0;
 }
 
 herr_t	Hdf5ReadWriter::readConf  (Cosmos *bck, Axiton *field) { return	0; }
