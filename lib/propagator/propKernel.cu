@@ -66,39 +66,17 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 				auto rIdx  = __sad (idx, nIdx, 0);
 				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
 				// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
-				mel       += ((field[idx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,nNeig>(nIdx-1);
+				//mel       += ((field[idx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,nNeig>(nIdx-1);
+				mel       += (field[idx+nIdx] + field[rIdx]-2*f0n)*C<Float,nNeig>(nIdx-1);
+			
 			}
 		} else {
-
-			/* 1 - Asymmetric laplacian */
-			// mel += (field[idx-2]-f0n)*(1.0 + pPc) - 2.0*(field[idx-1]-f0n)*(1 + 2.0*pPc);
-			// mel += -(field[idx-3]-f0n)*(1.0 + 2.0*pPc/3.0)  + (field[idx-2]-f0n)*(4.0 + 3.0*pPc) - (field[idx-1]-f0n)*(5.0 + 6.0*pPc);
-			// mel += 0.0;
-
-			/* 2 - Delayed laplacian */
-			// #pragma unroll
-			// for (int nIdx=1; nIdx<=nNeig; nIdx++)
-			// {
-			//
-			// 	// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*((Float) rIdx)*pPc - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
-			// 	// mel       += (field[idx+nIdx]*(1.0 + nIdx*pPc) + field[rIdx]*(1.0 - nIdx*pPc) - 2.0*f0n)*C<Float,nNeig>(nIdx-1);
-			//
-			// 	auto rIdx  = Lx -nNeig -1;
-			// 	mel       += ((field[rIdx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx-nIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,nNeig>(nIdx-1);
-			// }
-
-			/* 3 - Reduced N-laplacian + BC at Lx-1 */
+			/* Reduced N-laplacian + BC at Lx-1 */
 			if (idx == Lx -1)
 			{
-				/* I still do not know what to put here so I dont put anything = Newman BCs */
-				// mel = 0;
-
-				/* Last point will do many things for the BC */
-				// Inspired by Givoli and Neta substitute laplacian for minus time derivative of the spatial derivative
-				// here taken to second order
-				mel +=  -(3*dev[idx] - 4*dev[idx-1] + dev[idx-2])*0.5*iod1;
-				// mel +=  -(dev[idx] - dev[idx-1])*ood1;
-
+				// relativistic
+				mel = -(dev[Lx-1]-dev[Lx-2])*sqrt(ood2);
+				// In mixed, the velocity is updated with the nonlinear potential and the field value to satisfy the relativistic absorbing BC
 			} else {
 				/* nNeig_effective = Lx-idx-1
 						it does not work so I use 1 always ...*/
@@ -107,9 +85,10 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 				{
 					auto rIdx  = __sad (idx, nIdx, 0);
 					/* This does not work because C is a template*/
-					// mel       += ((field[idx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,Lx-idx>(nIdx-1);
-					mel       += ((field[idx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,1>(nIdx-1);
-					//mel       += (field[idx+nIdx]*(1+nIdx*pPc) + field[rIdx]*(1.0-nIdx*pPc)-2.0*f0n)*C<Float,1>(nIdx-1);
+
+					//mel       += ((field[idx+nIdx]-f0n)*(1+nIdx*pPc) + (field[rIdx]-f0n)*(1.0-nIdx*pPc))*C<Float,1>(nIdx-1);
+
+					mel       += ((field[idx+nIdx] + field[rIdx]-2*f0n))*C<Float,1>(nIdx-1);
 				}
 			}
 
@@ -117,13 +96,19 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 	} else {
 		#pragma unroll
 		for (int nIdx=1; nIdx<=nNeig; nIdx++) {
-			mel += 0.0*(field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx-1);
+			mel += 0*(field[nIdx] - f0n)*2.0*C<Float,nNeig>(nIdx-1);
 		}
 	}
-
-        a = mel*ood2 - zQ*sin(f0n*iz);
+	
+	// non linear c_theta
+        // a = mel*ood2 - zQ*sin(f0n*iz);
+	// linear c_theta
 	// a = mel*ood2 - zQ*(f0n*iz);
-	// a = -1;
+	// non linear c_theta*r
+	if (idx != 0) 
+		a = mel*ood2 - zQ*sin(f0n*iz*pPc)*((Float) idx);
+	else 
+		a = mel*ood2;
 
 	mel	 = dev[idx];
 
@@ -139,6 +124,10 @@ static __device__ __forceinline__ void	propagateCoreGpu(const uint idx, const Fl
 	f0n	+= mel;
 
 	misc[idx] = f0n; //modPi(tmp, zP, tPz);
+	if (idx==Lx-1){
+		//relativistic?
+		misc[Lx-1] = field[Lx-1]-(field[Lx-1]-field[Lx-2])*dzd*iod1;
+	}
 }
 
 template<typename Float, const int nNeig, const bool wMod>
