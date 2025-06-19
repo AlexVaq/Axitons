@@ -1,27 +1,27 @@
 #ifndef	GeneratorGuard
-	#define	GeneratorGuard
+#define	GeneratorGuard
 
-	#include "enum-vars.h"
-	#include "fields/fields.h"
-	#include "cosmos/cosmos.h"
-	#include <gen/spline.h>
+#include "enum-vars.h"
+#include "fields/fields.h"
+#include "cosmos/cosmos.h"
+#include <gen/spline.h>
 
-	class	Generator {
+class	Generator {
 
-		private:
+  private:
 
-		InitialCond	icType;
-		Axiton			*field;
-		Cosmos			*cosmo;
+    InitialCond	icType;
+    Axiton			*field;
+    Cosmos			*cosmo;
 
-		tk::spline sm, sv;
+    tk::spline sm, sv;
 
-		public:
+  public:
 
-			Generator (InitialCond icType, Axiton *field, Cosmos *cosmo) : icType(icType), field(field), cosmo(cosmo) {}
+    Generator (InitialCond icType, Axiton *field, Cosmos *cosmo) : icType(icType), field(field), cosmo(cosmo) {}
 
-		void	Construct (double parm1, int parm2, double zInit);
-		void  SplineSetup();
-		void 	fillGen();
-	};
+    void	Construct (double parm1, int parm2, double zInit);
+    void  SplineSetup();
+    void 	fillGen();
+};
 #endif

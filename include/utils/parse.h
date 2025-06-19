@@ -1,8 +1,9 @@
 #ifndef	ParserGuard
-	#define	ParserGuard
+#define	ParserGuard
 
-	#include "cosmos/cosmos.h"
+#include "cosmos/cosmos.h"
 
-	Cosmos	initAxitons(int argc, char *argv[]);
-	void	endAxitons ();
+Cosmos	initAxitons(int argc, char *argv[]);
+void	endAxitons ();
+
 #endif

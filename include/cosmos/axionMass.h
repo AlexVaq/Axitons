@@ -1,32 +1,34 @@
 #ifndef	AxionMassGuard
-	#define	AxionMassGuard
+#define	AxionMassGuard
 
-	#include <cmath>
+#include <cmath>
 
-	class	AxionMass {
-		private:
+class	AxionMass {
+  private:
 
-		double	zThRes;
-		double	zRestore;
-		double	indi3;
-		double	nQcd;
+    double	zThRes;
+    double	zRestore;
+    double	indi3;
+    double	nQcd;
 
-		public:
+  public:
 
-			AxionMass(double zThRes, double zRestore, double indi3, double nQcd) : zThRes(zThRes), zRestore(zRestore), indi3(indi3), nQcd(nQcd) {}
+    AxionMass(double zThRes, double zRestore, double indi3, double nQcd) : zThRes(zThRes), zRestore(zRestore), indi3(indi3), nQcd(nQcd) {}
 
-		double	operator()(double RNow) {
-			double aMass;
+    double	operator()(double RNow)
+    {
+        double aMass;
 
-			if ((RNow > zThRes) &&  (zThRes < zRestore))
-			{
-				aMass = indi3*indi3*pow(zThRes, nQcd);
-				if (RNow > zRestore)
-					aMass *= pow(RNow/zRestore, nQcd);
-			} else
-				aMass = indi3*indi3*pow(RNow, nQcd);
+        if ((RNow > zThRes) &&  (zThRes < zRestore))
+        {
+            aMass = indi3*indi3*pow(zThRes, nQcd);
+            if (RNow > zRestore)
+                aMass *= pow(RNow/zRestore, nQcd);
+        }
+        else
+            aMass = indi3*indi3*pow(RNow, nQcd);
 
-			 return aMass;
-		}
-	};
+        return aMass;
+    }
+};
 #endif
