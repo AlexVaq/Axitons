@@ -8,22 +8,22 @@ class	Axiton : public Tunable {
 
   private:
 
-    void		*hField;
-    void		*dField;
-    void		*hDev;
-    void		*dDev;
-    void		*hMisc;
-    void		*dMisc;
+    void *hField;
+    void *dField;
+    void *hDev;
+    void *dDev;
+    void *hMisc;
+    void *dMisc;
 
-    FieldPrecision	prec;
-    int		length;
-    int		bytes;
+    int	length;
+    int	bytes;
 
-    double		zVar;
+    double zVar;
 
     FieldType	fMod;
     FieldStatus	fStatus;
     FieldStatus	dStatus;
+    FieldPrecision prec;
 
   public:
 

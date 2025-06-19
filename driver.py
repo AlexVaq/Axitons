@@ -2,7 +2,15 @@ import os, sys
 import subprocess
 import numpy as np
 
-exe = '../axiton'
+
+N = 16384
+L = 6
+nQCD = 7.0
+
+zi = 0.5
+zf = 2.0
+wDz = 1.5
+nstep = 5000
 
 
 def ICgen(R,ic='flat',sigma=0.1,bst=1,path='test'):
@@ -29,30 +37,29 @@ def ICgen(R,ic='flat',sigma=0.1,bst=1,path='test'):
     np.savetxt(path+'/ics.txt', x, delimiter=' ', fmt='%.8e %.8e %.8e')   # X is an array
 
 def run():
-    exe_source = "../build/axiton"
+
+    exe_source = "build/src/axiton"
     run_dir = "test"
     exe_link = os.path.join(run_dir, "axiton")
 
     os.makedirs(run_dir, exist_ok=True)
 
-    if not os.path.exists(exe_link):
+    if os.path.islink(exe_link):
+        if os.readlink(exe_link) != os.path.abspath(exe_source):
+            os.remove(exe_link)
+            os.symlink(os.path.abspath(exe_source), exe_link)
+    else:
         os.symlink(os.path.abspath(exe_source), exe_link)
 
-    run_dir = "test"
-    os.makedirs(run_dir, exist_ok=True)
-
-    # Set initial conditions
+    # Initial conditions
     ICgen(1,'axitv',0.3,30, path=run_dir)
 
-    N = 16384
     # Run the binary
-    options = ["--size", str(N), "--ctype", "user"]
-    command = [exe] + options
-    print(command)
+    options = ["--size", str(N), "--ctype", "user", "--zi", str(zi), "--zf", str(zf),
+               "--lsize", str(L), "--qcd", str(nQCD), "--wDz", str(wDz), "--steps", str(nstep)]
+    command = ["./axiton"] + options
     subprocess.run(command, cwd=run_dir)
 
 
-
-if __name__ == "__main__":
-    run()
+if __name__ == "__main__": run()
 
