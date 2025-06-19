@@ -30,7 +30,8 @@ project("AXITON")
 #######################################################################
 
 set(CMAKE_CUDA "/usr/local/cuda")
-set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
+#set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
+set(CMAKE_CUDA_COMPILER "$ENV{CUDA_HOME}/bin/nvcc")
 enable_language(CUDA)
 # do all the build definitions
 
@@ -39,10 +40,30 @@ include_directories(SYSTEM ${HDF5_INCLUDE_DIR})
 find_package(OpenMP REQUIRED)
 find_package(HDF5   REQUIRED)
 
-find_library(FFTW_LIBRARY      NAMES fftw3 fftw           HINTS "$ENV{FFTW_HOME}")
-find_library(FFTW_OMP_LIBRARY  NAMES fftw3_omp fftw_omp   PATHS $ENV{FFTW_HOME}/lib)
+#find_library(FFTW_LIBRARY      NAMES fftw3 fftw           HINTS "$ENV{FFTW_HOME}")
+#find_library(FFTW_OMP_LIBRARY  NAMES fftw3_omp fftw_omp   PATHS $ENV{FFTW_HOME}/lib)
 
-#find_library(HDF5_LIBRARY NAMES hdf5 PATHS $HDF5_HOME)
+set(FFTW_HOME $ENV{FFTW_HOME})
+find_library(FFTW_LIBRARY     NAMES fftw3 fftw         HINTS ${FFTW_HOME} PATH_SUFFIXES lib lib64)
+
+# Detect compiler for selecting the correct OpenMP-enabled FFTW library
+if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+    set(_fftw_omp_name fftw3_omp_GNU)
+elseif(CMAKE_C_COMPILER_ID MATCHES "Intel")
+    set(_fftw_omp_name fftw3_omp_Intel)
+elseif(CMAKE_C_COMPILER_ID MATCHES "NVIDIA")
+    set(_fftw_omp_name fftw3_omp_nvidia)
+else()
+    set(_fftw_omp_name fftw3_omp) # Generic case
+endif()
+
+find_library(FFTW_OMP_LIBRARY NAMES ${_fftw_omp_name} HINTS ${FFTW_HOME} PATH_SUFFIXES lib lib64)
+
+if(NOT FFTW_OMP_LIBRARY)
+message(FATAL_ERROR "Could not find OpenMP FFTW library for compiler '${_fftw_omp_name}' in ${FFTW_HOME}")
+endif()
+
+
 set(GPU_ARCH sm_70 CACHE STRING "set the GPU architecture (sm_50, sm_52, sm_60, sm_61, sm_62, sm_70)")
 set(GPU_COMP compute_70 CACHE STRING "set the GPU compute capability (compute_50, compute_52, compute_60, compute_61, compute_62, compute_70)")
 set(DEFARCH "700")
